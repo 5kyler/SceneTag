@@ -1,0 +1,18 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>list</title>
+</head>
+<body>
+{% for video in videos %}
+    <a href="{% url 'video_view' video.pk %}"> {{ video.pk }} </a> {{ video.programName }} <br>
+{% endfor %}
+<br><br>
+
+<a href="{% url 'refresh_list' %}"> {{ unreg_cnt }} register_now! </a> <br>
+
+</body>
+</html> 

@@ -1,0 +1,27 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Video View</title>
+</head>
+<body>
+
+    <div class="container">
+        <div id="playerWrapper">
+            <video class="video-js vjs-default-skin" controls preload="auto" width="720" height="360" data-setup="{}">
+                <source src="{{ video.localFile.url }}" type="video/mp4">
+            </video>
+        </div>
+    </div>
+
+    video: {{ video }}<br>
+    program name: {{ video.programName }}<br>
+    file: {{ video.localFile.name }} <br>
+    url: {{ video.localFile.url }} <br>
+    <a href="{% url 'list' 1 %}"> video list </a> <br>
+    <a href="{% url 'edit_video' video.pk %}"> edit_video </a> <br>
+    <a href="#"> 프레임 추출 </a> <br>
+</body>
+</html>
