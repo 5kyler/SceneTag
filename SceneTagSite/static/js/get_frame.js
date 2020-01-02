@@ -1,6 +1,6 @@
 function getCurrentVideoFrame(video_pk,target_url) {
     try {
-        var myPlayer = videojs('video_id')
+        var myPlayer = videojs('video_id');
         myPlayer.ready(function () {
 
             $.ajax({

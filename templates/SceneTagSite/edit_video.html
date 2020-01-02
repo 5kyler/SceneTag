@@ -7,7 +7,46 @@
 
 {% block content %}
 
+    <strong>{{ video.programName }}</strong><br>
+    <div id="playerWrapper" align="center">
+        <video class="video-js vjs-default-skin vjs-big-play-centered" id="video_id" controls preload="auto" data-setup="{}">
+            <source src="{{ video.localFile.url }}" type="video/mp4">
+        </video>
+    </div><br>
 
+
+
+
+    <strong>Frame List</strong><br>
+    <table id="shotWrapper" class="table table-striped">
+        <thead id="table-header" align="center">
+        <th class="row">
+            <div class="col-md-3" align="center">Frame</div>
+            <div class="col-md-3" align="center">Current Time Stamp</div>
+            <div class="col-md-2" align="center">Current Frame</div>
+            <div class="col-md-4" align="center">Grouping</div>
+        </th>
+        </thead>
+
+    </table>
+
+
+    {% for frame in  frames %}
+        <div class="row" id={{ frame.pk }} align="center">
+            <div  class="col-md-3">
+                <img class="img-thumbnail" id="frame{{ frame.currentFrame }}" src="...">
+            </div >
+            <div  class="col-md-3">
+                {{ frame.currentTimeStamp }}
+            </div >
+            <div  class="col-md-2">
+                frame_{{ frame.currentFrame }}
+            </div >
+            <div  class="col-md-4">
+
+            </div >
+        </div >
+    {% endfor %}
 
 
 
