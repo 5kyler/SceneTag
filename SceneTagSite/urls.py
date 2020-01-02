@@ -4,17 +4,16 @@ from django.contrib import admin
 from SceneTagSite import views
 
 urlpatterns = [
-    path('test/', views.test, name='test'),
 
     # video list page
     path('list/page/<list_page>/', views.video_list, name='list'),
     path('list/refresh/', views.video_list_refresh, name='refresh_list'),
 
-    # video page
-    path('view/<video_id>/', views.video, name='video_view'),
+    # video shot_list
+    path('list/shot/<video_id>/', views.shot_list, name='shot_list'),
 
-    # edit video
-    path('edit/<video_id>/', views.edit_video, name='edit_video'),
+    # frame_list
+    path('list/frame/<video_id>/', views.frame_list, name='frame_list'),
 
     #ajax
     path('ajax/extract_current_frame', views.extract_current_frame, name='extract_current_frame')

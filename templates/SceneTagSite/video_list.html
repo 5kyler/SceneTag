@@ -8,7 +8,7 @@
 </head>
 <body>
 {% for video in videos %}
-    <a href="{% url 'video_view' video.pk %}"> {{ video.pk }} </a> {{ video.programName }} <br>
+    <a href="{% url 'shot_list' video.pk %}"> {{ video.pk }} </a> {{ video.programName }} <br>
 {% endfor %}
 <br><br>
 

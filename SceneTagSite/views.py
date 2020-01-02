@@ -15,9 +15,7 @@ import json
 
 # Create your views here.
 
-def test(request):
-    return render(request, 'SceneTagSite/test.html', {
-    })
+
 
 
 def video_list(request, list_page):
@@ -44,23 +42,23 @@ def video_list_refresh(request):
         return HttpResponseRedirect(reverse('list', args='1'))
 
 
-def video(request, video_id):
+def shot_list(request, video_id):
     video = models.Video.objects.get(pk=video_id)
     vid = cv2.VideoCapture(video.localFile.path)
     fps = vid.get(cv2.CAP_PROP_FPS)
 
-    return render(request, 'SceneTagSite/video.html', {
+    return render(request, 'SceneTagSite/shot_list.html', {
         'video': video,
         'fps': fps,
     })
 
 
-def edit_video(request, video_id):
+def frame_list(request, video_id):
     video = models.Video.objects.get(pk=video_id)
 
     frames = models.FrameList.objects.filter(video__pk=video_id).order_by('currentTimeStamp')
 
-    return render(request, 'SceneTagSite/edit_video.html', {
+    return render(request, 'SceneTagSite/frame_list.html', {
         'video': video,
         'frames': frames,
     })
@@ -74,28 +72,26 @@ def extract_current_frame(request):
 
     video = models.Video.objects.get(pk=video_pk)
     video_path = video.localFile.path
-    safe_path = video_path.encode('utf-8')
-    vidcap = cv2.VideoCapture(str(safe_path))
+    vidcap = cv2.VideoCapture(video_path)
     fps = vidcap.get(cv2.CAP_PROP_FPS)
 
     count = 0
-    total_frames = vidcap.get(cv2.CAP_PROP_FRAME_COUNT)
-    total_frames = int(total_frames)
+    total_frames = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
 
     return_list = []
 
-    # 프레임 리프레쉬 추가
+    #frame refresh
 
     success, image = vidcap.read()
     success = True
     while success:
-        vidcap.set(cv2.CAP_PROP_POS_MSEC, (count * 1000))  # added this line
+        vidcap.set(cv2.CAP_PROP_POS_MSEC, (count*1000))    # added this line
         success, image = vidcap.read()
 
-        img_name = u'%05d.jpg' % count
-        file_name = os.path.join(settings.MEDIA_ROOT, str(video_pk), img_name)
-        save_status = cv2.imwrite(file_name, image)
+        frame_name = u'%05d.jpg' % count
+        frame_path = os.path.join(settings.MEDIA_ROOT, str(video_pk), frame_name)
 
+        save_status = cv2.imwrite(frame_path, image)
         currentFrame = count
 
         frame = [currentFrame]
@@ -104,12 +100,11 @@ def extract_current_frame(request):
         if save_status:
             response_datas['save_status'] = True
         count += 1
-        if count >= (total_frames / fps):
+        if count >= (total_frames/fps):
             break
 
     for i in range(len(return_list)):
         for j in range(len(frame)):
             new_frame = models.FrameList(video=video, framerate=fps, currentFrame=return_list[i][j])
             new_frame.save()
-
-    return return_list
+    return HttpResponse(json.dumps(return_list), content_type="application/json")
