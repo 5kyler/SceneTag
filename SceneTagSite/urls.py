@@ -15,4 +15,7 @@ urlpatterns = [
 
     # edit video
     path('edit/<video_id>/', views.edit_video, name='edit_video'),
+
+    #ajax
+    path('ajax/extract_current_frame', views.extract_current_frame, name='extract_current_frame')
 ]

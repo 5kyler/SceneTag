@@ -1,27 +1,34 @@
+{% extends 'SceneTagSite/base.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Video View</title>
-</head>
-<body>
+{% block head %}
+{% endblock head %}
 
-    <div class="container">
-        <div id="playerWrapper">
-            <video class="video-js vjs-default-skin" controls preload="auto" width="720" height="360" data-setup="{}">
-                <source src="{{ video.localFile.url }}" type="video/mp4">
-            </video>
-        </div>
-    </div>
+{% block content %}
 
-    video: {{ video }}<br>
-    program name: {{ video.programName }}<br>
-    file: {{ video.localFile.name }} <br>
-    url: {{ video.localFile.url }} <br>
+    <div id="playerWrapper" align="center">
+        <video class="video-js vjs-default-skin vjs-big-play-centered" id="video_id" controls preload="auto" width="720" height="360" data-setup="{}">
+            <source src="{{ video.localFile.url }}" type="video/mp4">
+        </video>
+    </div><br>
+
+    video : {{ video }} <br>
+    program name : {{ video.programName }} <br>
+    file : {{ video.localFile.name }} <br>
+    url : {{ video.localFile.url }} <br>
     <a href="{% url 'list' 1 %}"> video list </a> <br>
     <a href="{% url 'edit_video' video.pk %}"> edit_video </a> <br>
-    <a href="#"> 프레임 추출 </a> <br>
-</body>
-</html>
+
+    <div class="col-md-12" align="center">
+        <strong>FPS(Frame Per Second)</strong> of this Video : <strong>{{ fps }}</strong>
+        <button id="getCurrentFrame" onclick="getCurrentVideoFrame({{ video.pk }},'{% url 'extract_current_frame' %}');" class="btn btn-danger"> 다운</button>
+
+    </div><br><br>
+
+
+    <strong>safe_path : {{ safe_path }}</strong>
+{% endblock content %}
+
+{% block jquery %}
+    <script src="{% static "js/get_frame.js" %}"></script>
+{% endblock jquery %}

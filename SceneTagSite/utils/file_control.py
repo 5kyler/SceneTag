@@ -22,6 +22,7 @@ def move_file_to_pk_directory(filename, pk):
     rel_path = os.path.join(str(pk), filename)
 
     os.makedirs(target_dir)
+    os.chmod(target_dir, 0o777)
 
     os.rename(upload_filepath, target_filepath)
 
