@@ -1,18 +1,50 @@
+{% extends 'SceneTagSite/base.html' %}
 {% load static %}
+{% load base_tags %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>list</title>
-</head>
-<body>
-{% for video in videos %}
-    <a href="{% url 'shot_list' video.pk %}"> {{ video.pk }} </a> {{ video.programName }} <br>
-{% endfor %}
-<br><br>
+{% block head %}
+{% endblock head %}
 
-<a href="{% url 'refresh_list' %}"> {{ unreg_cnt }} register_now! </a> <br>
+{% block nav %}
+    {% nav_bar %}
+{% endblock nav %}
 
-</body>
-</html> 
+{% block content %}
+    <div class="container">
+        <h3>Registered Video List</h3>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>프로그램 이름</th>
+                <th></th>
+                <th>등록 시간</th>
+                <th>수정 시간</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for video in videos %}
+                <tr>
+                    <td>{{ video.pk }}</td>
+                    <td><a href="{% url 'shot_list' video.pk %}">{{ video.programName }}</a> </td>
+
+                    <td></td>
+
+                    <td></td>
+
+                    <td></td>
+                    <td></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="alert alert-primary" role="alert">
+            <div class="col-md-12" align="center">
+                업로드 폴더에 {{ unreg_cnt }}개의 등록하지 않응 동영상이 있습니다. 등록하시겠습니까?
+                <a href="{% url 'refresh_list' %}" class="btn btn-primary text-right"> GO </a> <br>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}

@@ -1,11 +1,18 @@
 {% extends 'SceneTagSite/base.html' %}
 {% load static %}
+{% load base_tags %}
 
 
 {% block head %}
+
 {% endblock head %}
 
+{% block nav %}
+    {% nav_bar %}
+{% endblock nav %}
+
 {% block content %}
+
 
     <strong>{{ video.programName }}</strong><br>
     <div id="playerWrapper" align="center">
@@ -14,8 +21,9 @@
         </video>
     </div><br>
 
+    <div id="FrameTable">
 
-
+    </div>
 
     <strong>Frame List</strong><br>
     <table id="shotWrapper" class="table table-striped">
@@ -29,7 +37,6 @@
         </thead>
 
     </table>
-
 
     {% for frame in  frames %}
         <div class="row" id={{ frame.pk }} align="center">
