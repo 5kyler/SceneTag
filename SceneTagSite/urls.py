@@ -13,8 +13,8 @@ urlpatterns = [
     path('list/shot/<video_id>/', views.shot_list, name='shot_list'),
 
     # frame_list
-    path('list/frame/<video_id>/', views.frame_list, name='frame_list'),
-
+    path('frame/<video_id>/', views.FrameBrowse.as_view(), name='frame_list'),
+    path('frame/<video_id>/page/<page_num>/', views.FrameBrowse.as_view(), name='shot_update'),
     #ajax
     path('ajax/extract_current_frame', views.extract_current_frame, name='extract_current_frame')
 ]

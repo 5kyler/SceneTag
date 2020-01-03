@@ -8,14 +8,15 @@ from django.conf import settings
 from SceneTagSite import models
 from SceneTagSite.utils import file_control
 
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.views import View
+
 import cv2
 import os
 import json
 
 
 # Create your views here.
-
-
 
 
 def video_list(request, list_page):
@@ -53,15 +54,39 @@ def shot_list(request, video_id):
     })
 
 
-def frame_list(request, video_id):
-    video = models.Video.objects.get(pk=video_id)
+class FrameBrowse(View):
+    def __init__(self):
+        return
 
-    frames = models.FrameList.objects.filter(video__pk=video_id).order_by('currentTimeStamp')
+    def get(self, request, video_id, page_num=1):
+        if request.is_ajax():
+            return self.update_frames(request, video_id, page_num)
+        else:
+            return self.get_normal(request, video_id, page_num)
 
-    return render(request, 'SceneTagSite/frame_list.html', {
-        'video': video,
-        'frames': frames,
-    })
+    def get_normal(self, request, video_id, page_num):
+        video = models.Video.objects.get(pk=video_id)
+
+        return render(request, 'SceneTagSite/frame_list.html',
+                      {
+                          'video': video,
+                      })
+
+    def update_frames(self, request, video_id, page_num):
+        video = models.Video.objects.get(pk=video_id)
+        frame_list = models.FrameList.objects.filter(video=video, shot__isnull=True).order_by('currentFrame')
+
+        paginator = Paginator(frame_list, 10)
+        cur_framepage = page_num
+        frames = paginator.page(page_num)
+        max_framepage = paginator.num_pages
+
+        return render(request, 'SceneTagSite/update_frame.html',
+                      {'video': video,
+                       'frames': frames,
+                       'cur_framepage': cur_framepage,
+                       'max_framepage': max_framepage,
+                       })
 
 
 def extract_current_frame(request):
@@ -80,12 +105,12 @@ def extract_current_frame(request):
 
     return_list = []
 
-    #frame refresh
+    # frame refresh
 
     success, image = vidcap.read()
     success = True
     while success:
-        vidcap.set(cv2.CAP_PROP_POS_MSEC, (count*1000))    # added this line
+        vidcap.set(cv2.CAP_PROP_POS_MSEC, (count * 1000))  # added this line
         success, image = vidcap.read()
 
         frame_name = u'%05d.jpg' % count
@@ -100,7 +125,7 @@ def extract_current_frame(request):
         if save_status:
             response_datas['save_status'] = True
         count += 1
-        if count >= (total_frames/fps):
+        if count >= (total_frames / fps):
             break
 
     for i in range(len(return_list)):
