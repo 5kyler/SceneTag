@@ -129,10 +129,11 @@ def ajax_get_frame_url(request):
 
     if request.GET['name'] == 'getFrameURL':
         response_data = {}
-        videoNum = int(request.GET['VideoNum'])
+        videoNum = int(request.GET['videoNum'])
         frameNum = int(request.GET['frameNum'])
         video = models.Video.objects.get(pk=videoNum)
         response_data['tagID'] = request.GET['tagID']
         response_data['URL'] = frame_extractor.get_frame_url(videoNum, video.localFile.path, frameNum)
 
-
+    response_datas.append(response_data)
+    return HttpResponse(json.dumps(response_datas), content_type="application/json")
