@@ -7,6 +7,7 @@ from django.conf import settings
 
 from SceneTagSite import models
 from SceneTagSite.utils import file_control
+from SceneTagSite.utils import frame_extractor
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views import View
@@ -89,47 +90,49 @@ class FrameBrowse(View):
                        })
 
 
-def extract_current_frame(request):
-    response_datas = {
-        'save_status': False,
-    }
-    video_pk = int(request.GET['video_pk'])
-
-    video = models.Video.objects.get(pk=video_pk)
+def extract_current_frame(request, video_id):
+    video = models.Video.objects.get(pk=video_id)
     video_path = video.localFile.path
-    vidcap = cv2.VideoCapture(video_path)
-    fps = vidcap.get(cv2.CAP_PROP_FPS)
+    vid = cv2.VideoCapture(video_path)
+    fps = vid.get(cv2.CAP_PROP_FPS)
 
     count = 0
-    total_frames = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+    total_frames = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))
 
     return_list = []
 
-    # frame refresh
-
-    success, image = vidcap.read()
     success = True
     while success:
-        vidcap.set(cv2.CAP_PROP_POS_MSEC, (count * 1000))  # added this line
-        success, image = vidcap.read()
+        vid.set(cv2.CAP_PROP_POS_MSEC, (count * 1000))
+        success, img = vid.read()
 
-        frame_name = u'%05d.jpg' % count
-        frame_path = os.path.join(settings.MEDIA_ROOT, str(video_pk), frame_name)
+        current_frame = int(count * fps)
 
-        save_status = cv2.imwrite(frame_path, image)
-        currentFrame = count
+        if current_frame > total_frames:
+            break
+        return_list.append(current_frame)
 
-        frame = [currentFrame]
-        return_list.append(frame)
-
-        if save_status:
-            response_datas['save_status'] = True
-        count += 1
-        if count >= (total_frames / fps):
+        if count >= total_frames:
             break
 
+        count += 1
+
     for i in range(len(return_list)):
-        for j in range(len(frame)):
-            new_frame = models.FrameList(video=video, framerate=fps, currentFrame=return_list[i][j])
-            new_frame.save()
-    return HttpResponse(json.dumps(return_list), content_type="application/json")
+        new_frame = models.FrameList(video=video, framerate=fps, currentFrame=return_list[i])
+        new_frame.save()
+
+    return HttpResponseRedirect(reverse('frame_list', args=video_id))
+
+
+def ajax_get_frame_url(request):
+    response_datas = []
+
+    if request.GET['name'] == 'getFrameURL':
+        response_data = {}
+        videoNum = int(request.GET['VideoNum'])
+        frameNum = int(request.GET['frameNum'])
+        video = models.Video.objects.get(pk=videoNum)
+        response_data['tagID'] = request.GET['tagID']
+        response_data['URL'] = frame_extractor.get_frame_url(videoNum, video.localFile.path, frameNum)
+
+

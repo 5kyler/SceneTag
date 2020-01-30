@@ -28,6 +28,7 @@
 {% endblock content %}
 
 {% block jquery %}
+    {% util_get_image %}
     <script>
         function update_frames(url){
             $('#FrameTable').html('').load(url)

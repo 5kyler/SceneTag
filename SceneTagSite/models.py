@@ -52,8 +52,7 @@ class FrameList(models.Model):
         return tc.get_timestamp()
 
     def save(self, *args, **kwargs):
-        self.currentTimeStamp = self.make_timestamp(frame=(self.currentFrame * self.framerate),
-                                                    framerate=self.framerate)
+        self.currentTimeStamp = self.make_timestamp(frame=self.currentFrame, framerate=self.framerate)
         super(FrameList, self).save(*args, **kwargs)
 
     def __unicode__(self):

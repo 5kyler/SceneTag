@@ -26,23 +26,6 @@
 
  <div class="col-md-12" align="center" >
         <strong>FPS(Frames Per Second)</strong> of this Video : <strong>{{ fps }}</strong>
-        <button id="getCurrentFrame" onclick="getImageURL({{ video.pk }});" class="btn btn-danger"> 다운</button>
+        <a href="{% url 'extract_current_frame' video.pk %}" class="btn-danger btn-block"> frame extracting </a>
     </div><br><br>
 {% endblock content %}
-{% block jquery %}
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-     <script>
-        function getImageURL(videoPK){
-            $.ajax({
-                url : '{% url 'extract_current_frame' %}',
-                data : {
-                    'video_pk' : videoPK,
-                },
-                success : function (data) {
-
-                }
-            });
-        }
-    </script>
-
-{% endblock jquery %}

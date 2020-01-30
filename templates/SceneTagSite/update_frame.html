@@ -29,7 +29,7 @@
 {% for frame in  frames %}
     <div class="row" id={{ frame.pk }} align="center">
         <div  class="col-md-3">
-{#            <img class="img-thumbnail" id="frame{{ frame.currentFrame }}" src="...">#}
+            <img class="img-thumbnail" id="pTagCurrent{{ frame.pk }}" src="...">
         </div >
         <div  class="col-md-3">
             {{ frame.currentTimeStamp }}
@@ -42,3 +42,9 @@
         </div >
     </div >
 {% endfor %}
+
+<script>
+    {% for frame in frames %}
+        getImageURL("#pTagCurrent{{ frame.pk }}", {{ video.pk }}, {{ frame.currentFrame }});
+    {% endfor %}
+</script>
