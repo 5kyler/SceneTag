@@ -27,6 +27,7 @@
 {% endblock content %}
 
 {% block jquery %}
+    <script src="{% static "js/frame.js" %}"></script>
     {% util_get_image %}
     <script>
         function update_frames(url){

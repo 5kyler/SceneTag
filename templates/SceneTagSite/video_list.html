@@ -17,7 +17,6 @@
             <tr>
                 <th>ID</th>
                 <th>프로그램 이름</th>
-                <th></th>
                 <th>등록 시간</th>
                 <th>수정 시간</th>
             </tr>
@@ -27,13 +26,8 @@
                 <tr>
                     <td>{{ video.pk }}</td>
                     <td><a href="{% url 'shot_list' video.pk %}">{{ video.programName }}</a> </td>
-
-                    <td></td>
-
-                    <td></td>
-
-                    <td></td>
-                    <td></td>
+                    <td>{{ video.registerDateTime }}</td>
+                    <td>{{ video.lastSavedDateTime }}</td>
                 </tr>
             {% endfor %}
             </tbody>

@@ -100,6 +100,15 @@ def copy_form_register(request, video_id):
 
 def extract_current_frame(request, video_id):
     video = models.Video.objects.get(pk=video_id)
+    shots = models.Shot.objects.filter(video__pk=video_id)
+    frames = models.FrameList.objects.filter(video__pk=video_id)
+
+    for frame in frames.iterator():
+        frame.delete()
+
+    for shot in shots.iterator():
+        shot.delete()
+
     video_path = video.localFile.path
     vid = cv2.VideoCapture(video_path)
     fps = vid.get(cv2.CAP_PROP_FPS)
@@ -114,9 +123,9 @@ def extract_current_frame(request, video_id):
         vid.set(cv2.CAP_PROP_POS_MSEC, (count * 1000))
         success, img = vid.read()
 
-        current_frame = int(count * fps)
+        current_frame = count * round(fps)
 
-        if current_frame > total_frames:
+        if current_frame > (total_frames - 1):
             break
         return_list.append(current_frame)
 
@@ -145,3 +154,26 @@ def ajax_get_frame_url(request):
 
     response_datas.append(response_data)
     return HttpResponse(json.dumps(response_datas), content_type="application/json")
+
+
+def frames_grouping(request):
+    response_datas = {
+        "reload_url": '',
+        "number_of_frame": 0,
+    }
+    if request.GET['name'] == 'frameGrouping':
+        framePK = request.GET['framePK']
+        videoPK = request.GET['videoPK']
+        clicked_frames = models.FrameList.objects.filter(id__lte=framePK, shot__isnull=True, video__id=videoPK)
+        number_of_frame = len(clicked_frames) # grouping 된 갯수
+        start_frame = clicked_frames[0].currentFrame
+        start_timestamp = clicked_frames[0].currentTimeStamp
+
+        last_element = clicked_frames.order_by('-pk')[0]
+        end_frame = last_element.currentFrame
+        end_timestamp = last_element.currentTimeStamp
+
+        models.make_new_frame(videoPK, number_of_frame, start_frame, end_frame, start_timestamp, end_timestamp)
+        response_datas['reload_url'] = request.GET['reload_url']
+        response_datas['number_of_frame'] = number_of_frame
+    return HttpResponse(json.dumps(response_datas), 'application/json')

@@ -21,6 +21,9 @@ urlpatterns = [
 
     # get_img
     path('extract_current_frame/<video_id>/', views.extract_current_frame, name='extract_current_frame'),
-    path('ajax/get_frame/', views.ajax_get_frame_url, name= 'ajax_get_frame'),
-    path('utils/image/', views.ajax_get_frame_url, name= 'util_media_image'),
+    path('ajax/get_frame/', views.ajax_get_frame_url, name='ajax_get_frame'),
+    path('utils/image/', views.ajax_get_frame_url, name='util_media_image'),
+
+    # frame grouping
+    path('ajax/frames_grouping/', views.frames_grouping, name='frames_grouping'),
 ]

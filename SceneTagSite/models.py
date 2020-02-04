@@ -8,6 +8,22 @@ from SceneTagSite.utils.converter import TimeConverter
 
 # Create your models here.
 
+def make_new_frame(video_pk, number_of_frame, start_frame, end_frame, start_timestamp, end_timestamp):
+    video = Video.objects.get(pk=video_pk)
+    frames = FrameList.objects.filter(video__pk=video_pk, currentFrame__gte=start_frame, currentFrame__lte=end_frame)
+    new_shot = Shot(video=video)
+    new_shot.number_of_frame = number_of_frame
+    new_shot.startFrame = start_frame
+    new_shot.endFrame = end_frame
+    new_shot.startTimestamp = start_timestamp
+    new_shot.endTimestamp = end_timestamp
+    new_shot.save()
+
+    for frame in frames:
+        frame.shot = new_shot
+        frame.save()
+
+
 class Video(models.Model):
     programName = models.CharField(max_length=255)
     localFile = models.FileField(blank=True)
@@ -33,6 +49,7 @@ class Shot(models.Model):
     endFrame = models.IntegerField(default=0)
     startTimeStamp = models.CharField(max_length=255, blank=True)
     endTimeStamp = models.CharField(max_length=255, blank=True)
+    attack = models.CharField(max_length=255, default='Normal')
 
     def __unicode__(self):
         name = str(self.video.programName) + u'Shot(' + str(self.pk) + u')'
@@ -52,7 +69,7 @@ class FrameList(models.Model):
         return tc.get_timestamp()
 
     def save(self, *args, **kwargs):
-        self.currentTimeStamp = self.make_timestamp(frame=self.currentFrame, framerate=self.framerate)
+        self.currentTimeStamp = self.make_timestamp(frame=int(self.currentFrame), framerate=int(self.framerate))
         super(FrameList, self).save(*args, **kwargs)
 
     def __unicode__(self):
