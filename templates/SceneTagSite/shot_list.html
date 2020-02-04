@@ -22,7 +22,8 @@
     file : {{ video.localFile.name }} <br>
     url : {{ video.localFile.url }} <br>
     <a href="{% url 'list' 1 %}"> video list </a> <br>
-    <a href="{% url 'frame_list' video.pk %}"> frame list </a> <br>
+    <a href="{% url 'frame_list' video.pk %}"> frame_list</a> <br>
+    <a href="{% url 'copy_form_register' video.pk %}"> copy</a> <br>
 
  <div class="col-md-12" align="center" >
         <strong>FPS(Frames Per Second)</strong> of this Video : <strong>{{ fps }}</strong>

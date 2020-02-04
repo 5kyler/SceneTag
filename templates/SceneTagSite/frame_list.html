@@ -14,7 +14,6 @@
 {% block content %}
 
 
-    <strong>{{ video.programName }}</strong><br>
     <div id="playerWrapper" align="center">
         <video class="video-js vjs-default-skin vjs-big-play-centered" id="video_id" controls preload="auto" width="480" height="240" data-setup="{}">
             <source src="{{ video.localFile.url }}" type="video/mp4">

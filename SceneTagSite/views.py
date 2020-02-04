@@ -90,6 +90,14 @@ class FrameBrowse(View):
                        })
 
 
+def copy_form_register(request, video_id):
+    video = models.Video.objects.get(pk=video_id)
+
+    return render(request, 'SceneTagSite/form_copy_register.html', {
+        'video': video,
+    })
+
+
 def extract_current_frame(request, video_id):
     video = models.Video.objects.get(pk=video_id)
     video_path = video.localFile.path

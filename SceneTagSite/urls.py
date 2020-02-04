@@ -16,8 +16,10 @@ urlpatterns = [
     path('frame/<video_id>/', views.FrameBrowse.as_view(), name='frame_list'),
     path('frame/<video_id>/page/<page_num>/', views.FrameBrowse.as_view(), name='shot_update'),
 
+    # from copy register
+    path('copy/shot/<video_id>', views.copy_form_register, name='copy_form_register'),
 
-    #get_img
+    # get_img
     path('extract_current_frame/<video_id>/', views.extract_current_frame, name='extract_current_frame'),
     path('ajax/get_frame/', views.ajax_get_frame_url, name= 'ajax_get_frame'),
     path('utils/image/', views.ajax_get_frame_url, name= 'util_media_image'),
