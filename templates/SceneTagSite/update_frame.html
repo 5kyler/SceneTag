@@ -1,13 +1,13 @@
 <h3>
     Frames (
     {% if cur_framepage != '1' %}
-        <a href="javascript:update_frames('{% url 'shot_update' video.pk cur_framepage|add:-1 %}')" class="btn btn-sm btn-outline-secondary" role="button">Prev</a>
+        <a href="javascript:update_frames('{% url 'frame_update' video.pk cur_framepage|add:-1 %}')" class="btn btn-sm btn-outline-secondary" role="button">Prev</a>
     {% else %}
         <a href="" class="btn btn-sm btn-outline-secondary disabled" role="button">Prev</a>
     {% endif %}
     {{ cur_framepage }}/{{ max_framepage }}
     {% if cur_framepage|add:0 != max_framepage|add:0 %}
-        <a href="javascript:update_frames('{% url 'shot_update' video.pk cur_framepage|add:1 %}')" class="btn btn-sm btn-outline-secondary" role="button">Next</a>
+        <a href="javascript:update_frames('{% url 'frame_update' video.pk cur_framepage|add:1 %}')" class="btn btn-sm btn-outline-secondary" role="button">Next</a>
     {% else %}
         <a href="" class="btn btn-sm btn-outline-secondary disabled" role="button">Next</a>
     {% endif %}

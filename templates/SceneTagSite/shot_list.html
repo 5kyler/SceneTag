@@ -27,6 +27,21 @@
 
  <div class="col-md-12" align="center" >
         <strong>FPS(Frames Per Second)</strong> of this Video : <strong>{{ fps }}</strong>
-        <a href="{% url 'extract_current_frame' video.pk %}" class="btn-danger btn-block"> frame extracting </a>
+        <a href="{% url 'extract_current_frame' video.pk %}" class="btn-danger"> frame extracting </a>
     </div><br><br>
+
+    <div id="ShotTable">
+
+    </div>
+
 {% endblock content %}
+
+{% block jquery %}
+    {% util_get_image %}
+    <script>
+        function update_shot(url) {
+            $('#ShotTable').html('').load(url)
+        }
+        update_shot("{% url 'shot_update' video.pk 1 %}");
+    </script>
+{% endblock jquery %}

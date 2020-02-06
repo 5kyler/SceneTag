@@ -33,6 +33,6 @@
         function update_frames(url){
             $('#FrameTable').html('').load(url)
         }
-        update_frames("{% url 'shot_update' video.pk 1 %}");
+        update_frames("{% url 'frame_update' video.pk 1 %}");
     </script>
 {% endblock jquery %}

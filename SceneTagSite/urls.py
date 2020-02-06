@@ -10,11 +10,15 @@ urlpatterns = [
     path('list/refresh/', views.video_list_refresh, name='refresh_list'),
 
     # video shot_list
-    path('list/shot/<video_id>/', views.shot_list, name='shot_list'),
+    # path('list/shot/<video_id>/', views.shot_list, name='shot_list'),
 
     # frame_list
     path('frame/<video_id>/', views.FrameBrowse.as_view(), name='frame_list'),
-    path('frame/<video_id>/page/<page_num>/', views.FrameBrowse.as_view(), name='shot_update'),
+    path('frame/<video_id>/page/<page_num>/', views.FrameBrowse.as_view(), name='frame_update'),
+
+    # shot_list
+    path('shot/<video_id>/', views.ShotBrowse.as_view(), name='shot_list'),
+    path('shot/<video_id>/page/<page_num>/', views.ShotBrowse.as_view(), name='shot_update'),
 
     # from copy register
     path('copy/shot/<video_id>', views.copy_form_register, name='copy_form_register'),

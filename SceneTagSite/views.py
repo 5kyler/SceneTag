@@ -44,15 +44,43 @@ def video_list_refresh(request):
         return HttpResponseRedirect(reverse('list', args='1'))
 
 
-def shot_list(request, video_id):
-    video = models.Video.objects.get(pk=video_id)
-    vid = cv2.VideoCapture(video.localFile.path)
-    fps = vid.get(cv2.CAP_PROP_FPS)
+class ShotBrowse(View):
+    def __init__(self):
+        return
 
-    return render(request, 'SceneTagSite/shot_list.html', {
-        'video': video,
-        'fps': fps,
-    })
+    def get(self, request, video_id, page_num=1):
+        if request.is_ajax():
+            return self.update_shot(request, video_id, page_num)
+        else:
+            return self.get_normal(request, video_id, page_num)
+
+    def get_normal(self, request, video_id, page_num):
+        video = models.Video.objects.get(pk=video_id)
+
+        return render(request, 'SceneTagSite/shot_list.html',
+                      {
+                          'video': video,
+                      })
+
+    def update_shot(self, request, video_id, page_num):
+        video = models.Video.objects.get(pk=video_id)
+        vid = cv2.VideoCapture(video.localFile.path)
+        fps = vid.get(cv2.CAP_PROP_FPS)
+        shot_list = models.Shot.objects.filter(video=video)
+        paginator = Paginator(shot_list, 10)
+        cur_shotpage = page_num
+        shots = paginator.page(page_num)
+        max_shotpage = paginator.num_pages
+
+        return render(request, 'SceneTagSite/update_shot.html',
+                      {
+                          'video': video,
+                          'fps': fps,
+                          'shots': shots,
+                          'cur_shotpage': cur_shotpage,
+                          'max_shotpage': max_shotpage,
+                      }
+                      )
 
 
 class FrameBrowse(View):
@@ -89,6 +117,16 @@ class FrameBrowse(View):
                        'max_framepage': max_framepage,
                        })
 
+
+# def shot_list(request, video_id):
+#     video = models.Video.objects.get(pk=video_id)
+#     vid = cv2.VideoCapture(video.localFile.path)
+#     fps = vid.get(cv2.CAP_PROP_FPS)
+#
+#     return render(request, 'VideoCopySite/shot_list.html', {
+#         'video': video,
+#         'fps': fps,
+#     })
 
 def copy_form_register(request, video_id):
     video = models.Video.objects.get(pk=video_id)
@@ -165,7 +203,7 @@ def frames_grouping(request):
         framePK = request.GET['framePK']
         videoPK = request.GET['videoPK']
         clicked_frames = models.FrameList.objects.filter(id__lte=framePK, shot__isnull=True, video__id=videoPK)
-        number_of_frame = len(clicked_frames) # grouping 된 갯수
+        number_of_frame = len(clicked_frames)  # grouping 된 갯수
         start_frame = clicked_frames[0].currentFrame
         start_timestamp = clicked_frames[0].currentTimeStamp
 
