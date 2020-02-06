@@ -23,12 +23,18 @@
     url : {{ video.localFile.url }} <br>
     <a href="{% url 'list' 1 %}"> video list </a> <br>
     <a href="{% url 'frame_list' video.pk %}"> frame_list</a> <br>
-    <a href="{% url 'copy_form_register' video.pk %}"> copy</a> <br>
+ {#    <a href="{% url 'shot_rotation' video.pk shot.pk %}"> copy </a> <br>#}
 
  <div class="col-md-12" align="center" >
         <strong>FPS(Frames Per Second)</strong> of this Video : <strong>{{ fps }}</strong>
         <a href="{% url 'extract_current_frame' video.pk %}" class="btn-danger"> frame extracting </a>
     </div><br><br>
+
+        <form method="POST" class="post-form">{% csrf_token %}
+             {{ form.as_p }}
+            <button type="submit" class="save btn btn-success btn-block">Save</button>
+        </form><br>
+
 
     <div id="ShotTable">
 

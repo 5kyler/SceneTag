@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from SceneTagSite.utils.converter import TimeConverter
+from SceneTagSite.utils.choices import *
 
 
 # Create your models here.
@@ -49,7 +50,6 @@ class Shot(models.Model):
     endFrame = models.IntegerField(default=0)
     startTimeStamp = models.CharField(max_length=255, blank=True)
     endTimeStamp = models.CharField(max_length=255, blank=True)
-    attack = models.CharField(max_length=255, default='Normal')
 
     def __unicode__(self):
         name = str(self.video.programName) + u'Shot(' + str(self.pk) + u')'
@@ -69,9 +69,20 @@ class FrameList(models.Model):
         return tc.get_timestamp()
 
     def save(self, *args, **kwargs):
-        self.currentTimeStamp = self.make_timestamp(frame=int(self.currentFrame), framerate=int(self.framerate))
+        self.currentTimeStamp = self.make_timestamp(frame=self.currentFrame, framerate=self.framerate)
         super(FrameList, self).save(*args, **kwargs)
 
     def __unicode__(self):
         name = u'frame_pk:' + str(self.pk)
+        return name
+
+
+class ShotRotation(models.Model):
+    video = models.ForeignKey(Video, on_delete=models.CASCADE)
+    shot = models.ForeignKey(Shot, on_delete=models.CASCADE)
+    rotation = models.IntegerField(choices=ROTATION_CHOICES, default=0)
+    parameter = models.IntegerField(default=0)
+
+    def __unicode__(self):
+        name = u'ShotRotation_pk:' + str(self.pk)
         return name

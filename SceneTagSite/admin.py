@@ -6,3 +6,4 @@ from SceneTagSite import models
 admin.site.register(models.Video)
 admin.site.register(models.Shot)
 admin.site.register(models.FrameList)
+admin.site.register(models.ShotRotation)

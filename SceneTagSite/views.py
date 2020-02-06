@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
@@ -15,6 +15,9 @@ from django.views import View
 import cv2
 import os
 import json
+
+from .forms import ShotRotationForm
+from .models import ShotRotation
 
 
 # Create your views here.
@@ -118,24 +121,6 @@ class FrameBrowse(View):
                        })
 
 
-# def shot_list(request, video_id):
-#     video = models.Video.objects.get(pk=video_id)
-#     vid = cv2.VideoCapture(video.localFile.path)
-#     fps = vid.get(cv2.CAP_PROP_FPS)
-#
-#     return render(request, 'VideoCopySite/shot_list.html', {
-#         'video': video,
-#         'fps': fps,
-#     })
-
-def copy_form_register(request, video_id):
-    video = models.Video.objects.get(pk=video_id)
-
-    return render(request, 'SceneTagSite/form_copy_register.html', {
-        'video': video,
-    })
-
-
 def extract_current_frame(request, video_id):
     video = models.Video.objects.get(pk=video_id)
     shots = models.Shot.objects.filter(video__pk=video_id)
@@ -215,3 +200,26 @@ def frames_grouping(request):
         response_datas['reload_url'] = request.GET['reload_url']
         response_datas['number_of_frame'] = number_of_frame
     return HttpResponse(json.dumps(response_datas), 'application/json')
+
+
+def shot_rotation(request, video_id, shot_id):
+    video = models.Video.objects.get(pk=video_id)
+    shot = models.Shot.objects.get(pk=shot_id)
+    form = ShotRotationForm(request.POST, request.FILES)
+
+    if request.method == "POST":
+        if form.is_valid():
+            shot_rota = ShotRotation()
+            shot_rota.video = form.cleaned_data['video']
+            shot_rota.shot = form.cleaned_data['shot']
+            shot_rota.rotation = form.cleaned_data['rotation']
+            shot_rota.parameter = form.cleaned_data['parameter']
+            shot_rota.save()
+            return redirect('shot_list', video_id)
+    else:
+        form = ShotRotationForm()
+        return render(request, 'SceneTagSite/shot_rotation_register.html', {
+            'video': video,
+            'shot': shot,
+            'form': form,
+        })

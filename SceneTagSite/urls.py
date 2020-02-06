@@ -20,8 +20,8 @@ urlpatterns = [
     path('shot/<video_id>/', views.ShotBrowse.as_view(), name='shot_list'),
     path('shot/<video_id>/page/<page_num>/', views.ShotBrowse.as_view(), name='shot_update'),
 
-    # from copy register
-    path('copy/shot/<video_id>', views.copy_form_register, name='copy_form_register'),
+    # from rotation register
+    path('rotation/<video_id>/shot/<shot_id>/', views.shot_rotation, name='shot_rotation'),
 
     # get_img
     path('extract_current_frame/<video_id>/', views.extract_current_frame, name='extract_current_frame'),
