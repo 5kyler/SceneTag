@@ -20,6 +20,17 @@
         </video>
     </div><br>
 
+    video : {{ video }} <br>
+    program name : {{ video.programName }} <br>
+    file : {{ video.localFile.name }} <br>
+    url : {{ video.localFile.url }} <br>
+    <a href="{% url 'list' 1 %}"> video list </a> <br>
+
+     <div class="col-md-12" align="center" >
+        <strong>FPS(Frames Per Second)</strong> of this Video : <strong>{{ fps }}</strong>
+        <a href="{% url 'extract_current_frame' video.pk %}" class="btn-danger"> Extracting Frame </a>
+    </div><br><br>
+
     <div id="FrameTable">
 
     </div>

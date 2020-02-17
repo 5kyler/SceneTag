@@ -19,7 +19,7 @@
         <div class="col-md-3" align="center">Frame</div>
         <div class="col-md-3" align="center">Current Time Stamp</div>
         <div class="col-md-2" align="center">Current Frame</div>
-        <div class="col-md-4" align="center">Grouping</div>
+        <div class="col-md-4" align="center">Tagging</div>
     </th>
     </thead>
 
@@ -38,7 +38,8 @@
             frame_{{ frame.currentFrame }}
         </div >
         <div  class="col-md-4">
-            <button class="btn btn-outline-info btn_group" id="btn_group{{ frame.pk }}" onclick="getClickedBtnPK({{ video.pk }},{{ frame.pk }})">Grouping</button>
+            <button class="btn btn-outline-info btn_group"><a href="{% url 'object_tagging' video.pk %}">Tagging</a></button>
+{#            <button class="btn btn-outline-info btn_group" id="btn_group{{ frame.pk }}" onclick="getClickedBtnPK({{ video.pk }},{{ frame.pk }})">Tagging</button> #} 
         </div >
     </div >
 {% endfor %}

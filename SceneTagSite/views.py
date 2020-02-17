@@ -223,3 +223,8 @@ def shot_rotation(request, video_id, shot_id):
             'shot': shot,
             'form': form,
         })
+
+
+def object_tagging(request,video_id):
+    video = models.Video.objects.get(pk=video_id)
+    return render(request, 'SceneTagSite/object_tagging.html')

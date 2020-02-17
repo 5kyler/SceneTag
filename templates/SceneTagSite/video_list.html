@@ -25,7 +25,7 @@
             {% for video in videos %}
                 <tr>
                     <td>{{ video.pk }}</td>
-                    <td><a href="{% url 'shot_list' video.pk %}">{{ video.programName }}</a> </td>
+                    <td><a href="{% url 'frame_list' video.pk %}">{{ video.programName }}</a> </td>
                     <td>{{ video.registerDateTime }}</td>
                     <td>{{ video.lastSavedDateTime }}</td>
                 </tr>
