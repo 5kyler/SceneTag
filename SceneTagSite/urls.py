@@ -24,7 +24,7 @@ urlpatterns = [
     path('rotation/<video_id>/shot/<shot_id>/', views.shot_rotation, name='shot_rotation'),
 
     # get_img
-    path('extract_current_frame/<video_id>/', views.extract_current_frame, name='extract_current_frame'),
+    path('extract_current_frame/<video_id>', views.extract_current_frame, name='extract_current_frame'),
     path('ajax/get_frame/', views.ajax_get_frame_url, name='ajax_get_frame'),
     path('utils/image/', views.ajax_get_frame_url, name='util_media_image'),
 
@@ -32,5 +32,5 @@ urlpatterns = [
     path('ajax/frames_grouping/', views.frames_grouping, name='frames_grouping'),
 
     #object tagging
-    path('tagging/<video_id>/', views.object_tagging, name='object_tagging'),
+    path('tagging/<video_id>/<frame_id>/', views.object_tagging, name='object_tagging'),
 ]

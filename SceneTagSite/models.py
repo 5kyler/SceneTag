@@ -59,6 +59,7 @@ class Shot(models.Model):
 class FrameList(models.Model):
     video = models.ForeignKey(Video, on_delete=models.CASCADE)
     shot = models.ForeignKey(Shot, on_delete=models.SET_NULL, blank=True, null=True)
+    imgName = models.CharField(max_length=255, null=True)
     framerate = models.FloatField(default=29.97)
     currentFrame = models.IntegerField(default=0)
     currentTimeStamp = models.CharField(max_length=255, blank=True)
@@ -85,4 +86,25 @@ class ShotRotation(models.Model):
 
     def __unicode__(self):
         name = u'ShotRotation_pk:' + str(self.pk)
+        return name
+
+
+class ObjectTag(models.Model):
+    video = models.ForeignKey(Video, on_delete=models.CASCADE)
+    imgName = models.CharField(max_length=255)
+    imgWidth = models.IntegerField(default=0)
+    imgHeight = models.IntegerField(default=0)
+    x1 = models.IntegerField(default=0)
+    y1 = models.IntegerField(default=0)
+    w = models.IntegerField(default=0)
+    h = models.IntegerField(default=0)
+    label = models.CharField(max_length=255, default='None')
+    lastSavedDateTime = models.DateTimeField(default=timezone.now)
+
+    def save(self, *args, **kwargs):
+        self.lastSavedDateTime = timezone.now()
+        super(ObjectTag, self).save(*args, **kwargs)
+
+    def __unicode__(self):
+        name = u'Object_pk:' + str(self.pk)
         return name
