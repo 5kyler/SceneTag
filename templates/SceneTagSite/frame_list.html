@@ -28,7 +28,7 @@
 
      <div class="col-md-12" align="center" >
         <strong>FPS(Frames Per Second)</strong> of this Video : <strong>{{ fps }}</strong>
-        <a href="{% url 'extract_current_frame' video.pk %}" class="btn-danger"> Extracting Frame </a>
+         <button id="getCurrentFrame" onclick="getCurrentVideoFrame({{ video.pk }},'{% url 'extract_current_frame' %}',{{ fps }});" class="btn btn-danger"> 다운</button>
     </div><br><br>
 
     <div id="FrameTable">
@@ -39,6 +39,7 @@
 
 {% block jquery %}
     <script src="{% static "js/frame.js" %}"></script>
+    <script src="{% static "js/get_key_frame.js" %}"></script>
     {% util_get_image %}
     <script>
         function update_frames(url){
@@ -46,4 +47,5 @@
         }
         update_frames("{% url 'frame_update' video.pk 1 %}");
     </script>
+
 {% endblock jquery %}

@@ -15,9 +15,10 @@ from django.views import View
 import cv2
 import os
 import json
+import re
 
-from .forms import ShotRotationForm
-from .models import ShotRotation
+from .forms import ShotRotationForm, ObjectTagForm
+from .models import ShotRotation, ObjectTag
 
 
 # Create your views here.
@@ -82,86 +83,118 @@ class ShotBrowse(View):
                           'shots': shots,
                           'cur_shotpage': cur_shotpage,
                           'max_shotpage': max_shotpage,
-                      }
-                      )
-
-
-class FrameBrowse(View):
-    def __init__(self):
-        return
-
-    def get(self, request, video_id, page_num=1):
-        if request.is_ajax():
-            return self.update_frames(request, video_id, page_num)
-        else:
-            return self.get_normal(request, video_id, page_num)
-
-    def get_normal(self, request, video_id, page_num):
-        video = models.Video.objects.get(pk=video_id)
-
-        return render(request, 'SceneTagSite/frame_list.html',
-                      {
-                          'video': video,
                       })
 
-    def update_frames(self, request, video_id, page_num):
-        video = models.Video.objects.get(pk=video_id)
-        frame_list = models.FrameList.objects.filter(video=video, shot__isnull=True).order_by('currentFrame')
 
-        paginator = Paginator(frame_list, 10)
-        cur_framepage = page_num
-        frames = paginator.page(page_num)
-        max_framepage = paginator.num_pages
+def extract_current_frame(request):
+    response_datas = {
+        'save_status': False,
+    }
+    video_pk = int(request.GET['video_pk'])
+    currentFrame = int(request.GET['currentFrame'])
+    currentTimeStamp = request.GET['currentTimeStamp']
 
-        return render(request, 'SceneTagSite/update_frame.html',
-                      {'video': video,
-                       'frames': frames,
-                       'cur_framepage': cur_framepage,
-                       'max_framepage': max_framepage,
-                       })
-
-
-def extract_current_frame(request, video_id):
-    video = models.Video.objects.get(pk=video_id)
-    shots = models.Shot.objects.filter(video__pk=video_id)
-    frames = models.FrameList.objects.filter(video__pk=video_id)
-
-    for frame in frames.iterator():
-        frame.delete()
-
-    for shot in shots.iterator():
-        shot.delete()
-
+    video = models.Video.objects.get(pk=video_pk)
     video_path = video.localFile.path
-    vid = cv2.VideoCapture(video_path)
-    fps = vid.get(cv2.CAP_PROP_FPS)
+    vidcap = cv2.VideoCapture(video_path)
+    fps = vidcap.get(cv2.CAP_PROP_FPS)
 
     count = 0
-    total_frames = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))
+    total_frames = vidcap.get(cv2.CAP_PROP_FRAME_COUNT)
+    total_frames = int(total_frames)
 
-    return_list = []
-
-    success = True
-    while success:
-        vid.set(cv2.CAP_PROP_POS_MSEC, (count * 1000))
-        success, img = vid.read()
-
-        current_frame = count * round(fps)
-
-        if current_frame > (total_frames - 1):
-            break
-        return_list.append(current_frame)
-
-        if count >= total_frames:
-            break
+    while vidcap.isOpened():
+        frame_exists, curr_frame = vidcap.read()
+        if frame_exists:
+            if count == int(currentFrame):
+                t_s = (vidcap.get(cv2.CAP_PROP_POS_MSEC) / 1000)
+                diff = abs(float(t_s) - float(currentTimeStamp))
+                if diff < 1:
+                    capture_path = os.path.join(settings.MEDIA_ROOT, str(video_pk), u"output")
+                    img_name = u'_frame%d.jpg' % count
+                    if os.path.exists(capture_path):
+                        final_path = os.path.join(capture_path, img_name)
+                    else:
+                        os.makedirs(capture_path)
+                        final_path = os.path.join(capture_path, img_name)
+                    # width = vidcap.get(cv2.CAP_PROP_FRAME_WIDTH)
+                    # height = vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+                    curr_frame = cv2.resize(curr_frame, (724, 408))
+                    save_status = cv2.imwrite(final_path, curr_frame)
+                    if save_status:
+                        response_datas['save_status'] = True
 
         count += 1
+        if count >= total_frames:
+            break
+    vidcap.release()
+    print(img_name)
 
-    for i in range(len(return_list)):
-        new_frame = models.FrameList(video=video, framerate=fps, currentFrame=return_list[i])
-        new_frame.save()
+    new_frame = models.FrameList(video=video, framerate=fps, currentFrame=currentFrame, imgName=img_name)
+    new_frame.save()
 
-    return HttpResponseRedirect(reverse('frame_list', args=video_id))
+    return HttpResponse(json.dumps(response_datas), content_type="application/json")
+
+
+def tryint(s):
+    try:
+        return int(s)
+    except:
+        return s
+
+
+def alphanum_key(s):
+    """ Turn a string into a list of string and number chunks.
+        "z23a" -> ["z", 23, "a"]
+    """
+    return [tryint(c) for c in re.split('([0-9]+)', s)]
+
+
+def get_key_frame_list(video_id):
+    imgs = []
+    work_root = os.path.join(settings.MEDIA_ROOT, str(video_id), u"output")
+
+    filenames = os.listdir(work_root)
+    for filename in filenames:
+        full_filename = os.path.join(work_root, filename)
+        if not os.path.isdir(full_filename):
+            filename = filename.split('.')
+            imgs.append(filename[0])
+    imgs.sort(key=alphanum_key)
+
+    return imgs
+
+
+def key_frame_list(request, video_id):
+    video = models.Video.objects.get(pk=video_id)
+    frames = models.FrameList.objects.filter(video__pk=video_id).order_by('currentTimeStamp')
+    # imgs = get_key_frame_list(video_id)
+    vid = cv2.VideoCapture(video.localFile.path)
+    fps = vid.get(cv2.CAP_PROP_FPS)
+
+    return render(request, 'SceneTagSite/frame_list.html', {
+        'video': video,
+        # 'imgs': imgs,
+        'frames': frames,
+        'fps': fps,
+    })
+
+
+def update_frames(request, video_id, page_num):
+    video = models.Video.objects.get(pk=video_id)
+    frame_list = models.FrameList.objects.filter(video=video, shot__isnull=True).order_by('currentFrame')
+    imgs = get_key_frame_list(video_id)
+    paginator = Paginator(frame_list, 10)
+    cur_framepage = page_num
+    frames = paginator.page(page_num)
+    max_framepage = paginator.num_pages
+
+    return render(request, 'SceneTagSite/update_frame.html',
+                  {'video': video,
+                   'frames': frames,
+                   'cur_framepage': cur_framepage,
+                   'max_framepage': max_framepage,
+                   })
 
 
 def ajax_get_frame_url(request):
@@ -202,6 +235,55 @@ def frames_grouping(request):
     return HttpResponse(json.dumps(response_datas), 'application/json')
 
 
+def object_tagging(request, video_id, frame_id):
+    video = models.Video.objects.get(pk=video_id)
+    frame = models.FrameList.objects.get(pk=frame_id)
+    img_name = models.FrameList.objects.get(pk=frame_id).imgName
+    im = cv2.imread(os.path.join(settings.MEDIA_ROOT, str(video_id), img_name))
+    if request.method == 'POST':
+        x = request.POST['x1']
+        y = request.POST['y1']
+        w = request.POST['w']
+        h = request.POST['h']
+        label = request.POST['label']
+
+        new_object_tag = ObjectTag(video=video,
+                                   frame=frame,
+                                   imgName=img_name,
+                                   imgWidth=im.shape[1],
+                                   imgHeight=im.shape[0],
+                                   x1=x,
+                                   y1=y,
+                                   w=w,
+                                   h=h,
+                                   label=label)
+        new_object_tag.save()
+        return redirect('object_tagging', video_id, frame_id)
+
+    img_url = '/videos/{}'.format(str(video_id), img_name)
+    object_tags = ObjectTag.objects.filter(video=video_id, imgName=img_name).order_by('-lastSavedDateTime')
+
+    form = ObjectTagForm
+
+    return render(request, 'SceneTagSite/object_tagging.html', {
+        'video': video,
+        'frame': frame,
+        'img_url': img_url,
+        'object_tags': object_tags,
+        'form': form,
+    })
+
+
+def del_object_tag(request, tag_pk):
+    tag = ObjectTag.objects.get(pk=tag_pk)
+
+    video = tag.video.programName
+    img_name = tag.imgName
+
+    tag.delete()
+    return HttpResponseRedirect(reverse('object_tag', args=(video, img_name)))
+
+
 def shot_rotation(request, video_id, shot_id):
     video = models.Video.objects.get(pk=video_id)
     shot = models.Shot.objects.get(pk=shot_id)
@@ -223,8 +305,3 @@ def shot_rotation(request, video_id, shot_id):
             'shot': shot,
             'form': form,
         })
-
-
-def object_tagging(request,video_id):
-    video = models.Video.objects.get(pk=video_id)
-    return render(request, 'SceneTagSite/object_tagging.html')
