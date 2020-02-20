@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
 
 from SceneTagSite import models
 from SceneTagSite.utils import file_control
@@ -19,6 +20,9 @@ import re
 
 from .forms import ShotRotationForm, ObjectTagForm
 from .models import ShotRotation, ObjectTag
+
+from datetime import datetime,date
+import time
 
 
 # Create your views here.
@@ -235,10 +239,17 @@ def frames_grouping(request):
     return HttpResponse(json.dumps(response_datas), 'application/json')
 
 
+@csrf_exempt
 def object_tagging(request, video_id, frame_id):
     video = models.Video.objects.get(pk=video_id)
     frame = models.FrameList.objects.get(pk=frame_id)
     img_name = models.FrameList.objects.get(pk=frame_id).imgName
+    # current_time = models.FrameList.objects.get(pk=frame_id).currentTimeStamp
+
+    # test2 = datetime.strptime('2019-7-20 ' + current_time, '%Y-%m-%d %H:%M:%S.%f')
+
+    # current = time.mktime(test2.timetuple()) + test2.microsecond/1e6
+    # time_dt = current * 1000
 
     im = cv2.imread(os.path.join(settings.MEDIA_ROOT, str(video_id), u"output", img_name))
     if request.method == 'POST':
@@ -266,23 +277,38 @@ def object_tagging(request, video_id, frame_id):
 
     form = ObjectTagForm
 
+    # canvas
+    query_length_object = len(object_tags)
+    list_x_object = []
+    list_y_object = []
+    list_w_object = []
+    list_h_object = []
+    for i in range(0, query_length_object):
+        list_x_object.append(object_tags[i].x1)
+        list_y_object.append(object_tags[i].y1)
+        list_w_object.append(object_tags[i].w)
+        list_h_object.append(object_tags[i].h)
+
     return render(request, 'SceneTagSite/object_tagging.html', {
         'video': video,
         'frame': frame,
         'img_url': img_url,
         'object_tags': object_tags,
         'form': form,
+        # canvas
+        'list_x_object': list_x_object,
+        'list_y_object': list_y_object,
+        'list_w_object': list_w_object,
+        'list_h_object': list_h_object,
+        'query_length_object': query_length_object,
     })
 
 
-def del_object_tag(request, tag_pk):
+def del_object_tagging(request, video_id, tag_pk):
     tag = ObjectTag.objects.get(pk=tag_pk)
-
-    video = tag.video.programName
-    img_name = tag.imgName
-
+    img_name = tag.frame_id
     tag.delete()
-    return HttpResponseRedirect(reverse('object_tag', args=(video, img_name)))
+    return HttpResponseRedirect(reverse('object_tagging', args=(video_id, img_name)))
 
 
 def shot_rotation(request, video_id, shot_id):

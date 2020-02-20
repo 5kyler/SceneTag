@@ -16,7 +16,7 @@
                 </li>
                 {% if video %}
                     <li class="nav-item">
-                        <a class="nav-link text-success" href="{% url 'shot_list' video.pk %}">
+                        <a class="nav-link text-success" href="{% url 'frame_list' video.pk %}">
                             <span class="fas fa-eye"></span>
                             {{ video.programName }}
                         </a>

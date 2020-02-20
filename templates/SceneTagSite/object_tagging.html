@@ -11,7 +11,7 @@
 
 {% block content %}
     {% csrf_token %}
-    <form method="post" id="object_id">
+    <form method="post" id="object_tag">
         <div class="col-md-12" align="center">
             <div class="card">
                 <div class="card-header">
@@ -22,10 +22,8 @@
                     </div><br>
                 </div>
                 <div class="card-body">
-                     <div id="playerWrapper" align="center">
-{#                        <canvas id="myCanvas"></canvas><br>#}
-                        <img id="target" src="{{ img_url }}">
-                    </div>
+                    <canvas id="myCanvas" width="724" height="408"></canvas><br>
+                    <img id = "target" src="{{ img_url }}" style="display: none; visibility: hidden;">
                 </div>
             </div>
         </div>
@@ -48,7 +46,6 @@
             <label><button id="save" type="submit" class="save btn btn-success">Save</button></label>
         </div>
     </form><br>
-{#    <a href="{% url 'key_frame_list' video.pk %}" class="btn btn_primary col-md-12">Frame List</a>#}
 
     <table id="shots-tagWrapper" align="center" class="table table-striped">
         <thead id="table-header">
@@ -65,7 +62,8 @@
                 <td class="col-md-3">{{ tag.pk }}</td>
                 <td class="col-md-3">( {{ tag.x1 }} , {{ tag.y1 }} , {{ tag.w }} , {{ tag.h }} )</td>
                 <td class="col-md-3">{{ tag.get_label_display }}</td>
-                <td class="col-md-3"><a href="{% url 'del_object_tagging' video.pk tag.pk %}"><i class="far fa-trash-alt"></i></a> </td>
+                <td class="col-md-3"><button class="btn btn-outline-info btn_group"><a href="{% url 'del_object_tagging' video.pk tag.pk %}">delete</a></button></td>
+
             </tr>
         {% endfor %}
         </tbody>
@@ -73,11 +71,15 @@
 {% endblock content %}
 
 {% block jquery %}
+
     <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery.Jcrop.js' %}"></script>
     <link rel="stylesheet" href="{% static 'css/jquery.Jcrop.css' %}">
-    <script></script>
+    <script src="{% static 'js/object_tagging.js' %}"></script>
+
     <script>
+
+
         window.onload = function () {
             var c = document.getElementById("myCanvas");
             var ctx = c.getContext("2d");

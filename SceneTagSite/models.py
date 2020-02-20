@@ -99,7 +99,7 @@ class ObjectTag(models.Model):
     y1 = models.IntegerField(default=0)
     w = models.IntegerField(default=0)
     h = models.IntegerField(default=0)
-    label = models.CharField(max_length=255, default='None')
+    label = models.IntegerField(choices=OBJECT_CHOICES, default=0)
     lastSavedDateTime = models.DateTimeField(default=timezone.now)
 
     def save(self, *args, **kwargs):

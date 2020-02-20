@@ -32,5 +32,6 @@ urlpatterns = [
     path('ajax/frames_grouping/', views.frames_grouping, name='frames_grouping'),
 
     # object tagging
-    path('frame/<video_id>/<frame_id>/', views.object_tagging, name='object_tagging'),
+    path('tag/<video_id>/<frame_id>/', views.object_tagging, name='object_tagging'),
+    path('delete/<video_id>/<tag_pk>/', views.del_object_tagging, name='del_object_tagging'),
 ]
