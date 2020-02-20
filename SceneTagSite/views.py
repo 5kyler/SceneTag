@@ -239,7 +239,8 @@ def object_tagging(request, video_id, frame_id):
     video = models.Video.objects.get(pk=video_id)
     frame = models.FrameList.objects.get(pk=frame_id)
     img_name = models.FrameList.objects.get(pk=frame_id).imgName
-    im = cv2.imread(os.path.join(settings.MEDIA_ROOT, str(video_id), img_name))
+
+    im = cv2.imread(os.path.join(settings.MEDIA_ROOT, str(video_id), u"output", img_name))
     if request.method == 'POST':
         x = request.POST['x1']
         y = request.POST['y1']
@@ -260,8 +261,8 @@ def object_tagging(request, video_id, frame_id):
         new_object_tag.save()
         return redirect('object_tagging', video_id, frame_id)
 
-    img_url = '/videos/{}'.format(str(video_id), img_name)
-    object_tags = ObjectTag.objects.filter(video=video_id, imgName=img_name).order_by('-lastSavedDateTime')
+    img_url = '/videos/{}/output/{}'.format(str(video_id), img_name)
+    object_tags = ObjectTag.objects.filter(video=video_id, frame=frame_id).order_by('-lastSavedDateTime')
 
     form = ObjectTagForm
 

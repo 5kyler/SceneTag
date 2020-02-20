@@ -1,1 +1,118 @@
-<h1>object Tagging</h1>
+{%  extends 'SceneTagSite/base.html' %}
+{%  load static %}
+{% load base_tags %}
+
+{% block head %}
+{% endblock head %}
+
+{% block nav %}
+    {% nav_bar %}
+{% endblock nav %}
+
+{% block content %}
+    {% csrf_token %}
+    <form method="post" id="object_id">
+        <div class="col-md-12" align="center">
+            <div class="card">
+                <div class="card-header">
+                    <div class="col" style="font-size: 28px; text-align: center">
+                        <a id="previous_keyframe_btn" href="#"><i class="far fa-arrow-alt-circle-left"></i></a>
+                        <strong>Object Tagging</strong>
+                        <a id="next_keyframe_btn" href="#"><i class="far fa-arrow-alt-circle-right"></i></a>
+                    </div><br>
+                </div>
+                <div class="card-body">
+                     <div id="playerWrapper" align="center">
+{#                        <canvas id="myCanvas"></canvas><br>#}
+                        <img id="target" src="{{ img_url }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+
+        <div class="inline_labels" align="center">
+            <label>X1<input class="browser-default custom-select mb-1" type="text" size="4" id="x1" name="x1"></label>
+            <label>Y1<input class="browser-default custom-select mb-1" type="text" size="4" id="y1" name="y1"></label>
+            <label>X2<input class="browser-default custom-select mb-1" type="text" size="4" id="x2" name="x2"></label>
+            <label>Y2<input class="browser-default custom-select mb-1" type="text" size="4" id="y2" name="y2"></label>
+            <label>W<input class="browser-default custom-select mb-1" type="text" size="4" id="w" name="w"></label>
+            <label>H<input class="browser-default custom-select mb-1" type="text" size="4" id="h" name="h"></label>
+            <label>Label
+                <select class="browser-default custom-select mb-1" name="label">
+                    {% for choice in form.label.field.choices %}
+                        <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label><button id="save" type="submit" class="save btn btn-success">Save</button></label>
+        </div>
+    </form><br>
+{#    <a href="{% url 'key_frame_list' video.pk %}" class="btn btn_primary col-md-12">Frame List</a>#}
+
+    <table id="shots-tagWrapper" align="center" class="table table-striped">
+        <thead id="table-header">
+        <th class="row">
+            <div class="col-md-3" align="center">TAG ID</div>
+            <div class="col-md-3" align="center">X , Y , W , H</div>
+            <div class="col-md-3" align="center">OBJECT TAG</div>
+            <div class="col-md-3" align="center">DELETE</div>
+        </th>
+        </thead>
+        <tbody>
+        {% for tag in object_tags %}
+            <tr class="row" align="center">
+                <td class="col-md-3">{{ tag.pk }}</td>
+                <td class="col-md-3">( {{ tag.x1 }} , {{ tag.y1 }} , {{ tag.w }} , {{ tag.h }} )</td>
+                <td class="col-md-3">{{ tag.get_label_display }}</td>
+                <td class="col-md-3"><a href="{% url 'del_object_tagging' video.pk tag.pk %}"><i class="far fa-trash-alt"></i></a> </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock content %}
+
+{% block jquery %}
+    <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery.Jcrop.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/jquery.Jcrop.css' %}">
+    <script></script>
+    <script>
+        window.onload = function () {
+            var c = document.getElementById("myCanvas");
+            var ctx = c.getContext("2d");
+            var img = document.getElementById("target");
+            var canvas = document.getElementById("myCanvas");
+            var context = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            context.beginPath();
+
+             //좌표 받기
+            var x_object = {{ list_x_object }}
+            var y_object = {{ list_y_object }}
+            var w_object = {{ list_w_object }}
+            var h_object = {{ list_h_object }}
+            x_list_object = Object.values(x_object)
+            y_list_object = Object.values(y_object)
+            w_list_object = Object.values(w_object)
+            h_list_object = Object.values(h_object)
+
+            console.log(x_object[1])
+
+            //그리기
+            var q_len_object = {{ query_length_object }}
+            if(q_len_object > 0) {
+                for(var i=0; i<q_len_object; i++){
+                    for(var j=0; j<q_len_object; j++){
+                        context.rect(x_list_object[j], y_list_object[j], w_list_object[j], h_list_object[j]);
+                    }
+                    context.fillStyle = 'rgba(255,0,0,0.0)';
+                    context.fill();
+                    context.lineWidth = 7;
+                    context.strokeStyle = 'yellow';
+                    context.stroke();
+                }
+            }
+        }
+    </script>
+{% endblock %}
