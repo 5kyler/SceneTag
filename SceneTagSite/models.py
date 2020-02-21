@@ -92,6 +92,7 @@ class ShotRotation(models.Model):
 class ObjectTag(models.Model):
     video = models.ForeignKey(Video, on_delete=models.CASCADE)
     frame = models.ForeignKey(FrameList, on_delete=models.CASCADE, null=True)
+    currenttime = models.CharField(max_length=255, blank=True)
     imgName = models.CharField(max_length=255)
     imgWidth = models.IntegerField(default=0)
     imgHeight = models.IntegerField(default=0)

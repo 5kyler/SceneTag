@@ -4,7 +4,8 @@
 
 
 {% block head %}
-
+    <link type="text/css" href="http://mbostock.github.io/d3/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'css/demo.css' %}">
 {% endblock head %}
 
 {% block nav %}
@@ -31,6 +32,32 @@
          <button id="getCurrentFrame" onclick="getCurrentVideoFrame({{ video.pk }},'{% url 'extract_current_frame' %}',{{ fps }});" class="btn btn-danger"> 다운</button>
     </div><br><br>
 
+     <form>
+        <div class="form-row">
+            <div class="col">
+                <strong>Start Time</strong>
+                <input type="text" class="form-control" placeholder="00:00:00">
+            </div>
+            <div class="col">
+                <strong>End Time</strong>
+                <input type="text" class="form-control" placeholder="00:00:00">
+            </div>
+        </div>
+        <br>
+        <div class="col-md-12" align="right">
+            <button type="submit" class="save btn btn-success">Save</button>
+        </div>
+    </form>
+
+    <h1>Tag 정보</h1>
+    <div id="chart_placeholder"></div>
+    <div style="text-align: center" id="legend"></div>
+    <div style="text-align: center" id="zoomEnd"></div>
+    <button id="getTimeLine" onclick="getTimeLine({{ video.pk }},'{% url 'api-data' %}');" class="btn btn-danger">태그등록</button>
+    <br><br>
+    <a href="#" class="btn btn-success btn-block">Export CSV</a><br>
+
+
     <div id="FrameTable">
 
     </div>
@@ -38,8 +65,11 @@
 {% endblock content %}
 
 {% block jquery %}
+
+    <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
     <script src="{% static "js/frame.js" %}"></script>
     <script src="{% static "js/get_key_frame.js" %}"></script>
+    <script src="{% static "js/demo.js" %}"></script>
     {% util_get_image %}
     <script>
         function update_frames(url){

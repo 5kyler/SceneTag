@@ -34,4 +34,7 @@ urlpatterns = [
     # object tagging
     path('tag/<video_id>/<frame_id>/', views.object_tagging, name='object_tagging'),
     path('delete/<video_id>/<tag_pk>/', views.del_object_tagging, name='del_object_tagging'),
+
+    #ajax
+    path('ajax/get_data/', views.get_data, name='api-data'),
 ]

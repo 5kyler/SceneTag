@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 
@@ -21,7 +21,7 @@ import re
 from .forms import ShotRotationForm, ObjectTagForm
 from .models import ShotRotation, ObjectTag
 
-from datetime import datetime,date
+from datetime import datetime, date
 import time
 
 
@@ -244,12 +244,12 @@ def object_tagging(request, video_id, frame_id):
     video = models.Video.objects.get(pk=video_id)
     frame = models.FrameList.objects.get(pk=frame_id)
     img_name = models.FrameList.objects.get(pk=frame_id).imgName
-    # current_time = models.FrameList.objects.get(pk=frame_id).currentTimeStamp
+    currenttime = models.FrameList.objects.get(pk=frame_id).currentTimeStamp
 
-    # test2 = datetime.strptime('2019-7-20 ' + current_time, '%Y-%m-%d %H:%M:%S.%f')
+    test2 = datetime.strptime('2019-7-20 ' + currenttime, '%Y-%m-%d %H:%M:%S.%f')
 
-    # current = time.mktime(test2.timetuple()) + test2.microsecond/1e6
-    # time_dt = current * 1000
+    current = time.mktime(test2.timetuple()) + test2.microsecond/1e6
+    time_dt = current * 1000
 
     im = cv2.imread(os.path.join(settings.MEDIA_ROOT, str(video_id), u"output", img_name))
     if request.method == 'POST':
@@ -309,6 +309,75 @@ def del_object_tagging(request, video_id, tag_pk):
     img_name = tag.frame_id
     tag.delete()
     return HttpResponseRedirect(reverse('object_tagging', args=(video_id, img_name)))
+
+
+def get_data(request):  # test
+
+    video_pk = int(request.GET['video_pk'])
+    objecttag_1 = models.ObjectTag.objects.filter(video__pk=video_pk, label="1")
+    objecttag_2 = models.ObjectTag.objects.filter(video__pk=video_pk, label="2")
+    objecttag_3 = models.ObjectTag.objects.filter(video__pk=video_pk, label="3")
+    objecttag_4 = models.ObjectTag.objects.filter(video__pk=video_pk, label="4")
+    objecttag_5 = models.ObjectTag.objects.filter(video__pk=video_pk, label="5")
+    objecttag_6 = models.ObjectTag.objects.filter(video__pk=video_pk, label="6")
+    objecttag_7 = models.ObjectTag.objects.filter(video__pk=video_pk, label="7")
+
+    query_length_tag_1 = len(objecttag_1)
+    query_length_tag_2 = len(objecttag_2)
+    query_length_tag_3 = len(objecttag_3)
+    query_length_tag_4 = len(objecttag_4)
+    query_length_tag_5 = len(objecttag_5)
+    query_length_tag_6 = len(objecttag_6)
+    query_length_tag_7 = len(objecttag_7)
+
+    object_list_1 = []
+    object_list_2 = []
+    object_list_3 = []
+    object_list_4 = []
+    object_list_5 = []
+    object_list_6 = []
+    object_list_7 = []
+
+    for i in range(0, query_length_tag_1):
+        object_list_1.append(objecttag_1[i].currenttime)
+
+    for i in range(0, query_length_tag_2):
+        object_list_2.append(objecttag_2[i].currenttime)
+
+    for i in range(0, query_length_tag_3):
+        object_list_3.append(objecttag_3[i].currenttime)
+
+    for i in range(0, query_length_tag_4):
+        object_list_4.append(objecttag_4[i].currenttime)
+
+    for i in range(0, query_length_tag_5):
+        object_list_5.append(objecttag_5[i].currenttime)
+
+    for i in range(0, query_length_tag_6):
+        object_list_6.append(objecttag_6[i].currenttime)
+
+    for i in range(0, query_length_tag_7):
+        object_list_7.append(objecttag_7[i].currenttime)
+
+    test_data = {
+        'object_list_1': object_list_1,
+        'object_list_2': object_list_2,
+        'object_list_3': object_list_3,
+        'object_list_4': object_list_4,
+        'object_list_5': object_list_5,
+        'object_list_6': object_list_6,
+        'object_list_7': object_list_7,
+
+        # object 개수
+        'query_length_tag_1': query_length_tag_1,
+        'query_length_tag_2': query_length_tag_2,
+        'query_length_tag_3': query_length_tag_3,
+        'query_length_tag_4': query_length_tag_4,
+        'query_length_tag_5': query_length_tag_5,
+        'query_length_tag_6': query_length_tag_6,
+        'query_length_tag_7': query_length_tag_7,
+    }
+    return JsonResponse(test_data)
 
 
 def shot_rotation(request, video_id, shot_id):
