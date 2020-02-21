@@ -9,8 +9,8 @@ Extracting_URL = u'/static/res/extracting.png'
 
 def get_frame_url(video_pk, video_path, frame_num):
     frame_name = u"_frame" + str(frame_num) + u".jpg"
-    frame_path = os.path.join(settings.MEDIA_ROOT, str(video_pk), frame_name)
-    frame_url = os.path.join(settings.MEDIA_URL, str(video_pk), frame_name)
+    frame_path = os.path.join(settings.MEDIA_ROOT, str(video_pk), u"output", frame_name)
+    frame_url = os.path.join(settings.MEDIA_URL, str(video_pk), u"output", frame_name)
 
     if not os.path.isfile(frame_path):
         frame_url = Extracting_URL
