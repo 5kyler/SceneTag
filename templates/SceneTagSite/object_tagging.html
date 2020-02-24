@@ -79,7 +79,6 @@
 
     <script>
 
-
         window.onload = function () {
             var c = document.getElementById("myCanvas");
             var ctx = c.getContext("2d");
@@ -94,12 +93,17 @@
             var y_object = {{ list_y_object }}
             var w_object = {{ list_w_object }}
             var h_object = {{ list_h_object }}
+            var label_object = {{ list_label_object|safe|escape }}
+
+
             x_list_object = Object.values(x_object)
             y_list_object = Object.values(y_object)
             w_list_object = Object.values(w_object)
             h_list_object = Object.values(h_object)
+            label_list_object = Object.values(label_object)
 
-            console.log(x_object[1])
+            console.log(x_object[0])
+            console.log(label_object[0])
 
             //그리기
             var q_len_object = {{ query_length_object }}
@@ -110,9 +114,12 @@
                     }
                     context.fillStyle = 'rgba(255,0,0,0.0)';
                     context.fill();
-                    context.lineWidth = 7;
+                    context.lineWidth = 1;
                     context.strokeStyle = 'yellow';
                     context.stroke();
+                    context.font = "20px Arial black";
+                    context.textBaseline = "bottom";
+                    context.strokeText(label_list_object[i], x_list_object[i], y_list_object[i]);
                 }
             }
         }

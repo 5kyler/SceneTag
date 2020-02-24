@@ -31,7 +31,7 @@
         <strong>FPS(Frames Per Second)</strong> of this Video : <strong>{{ fps }}</strong>
          <button id="getCurrentFrame" onclick="getCurrentVideoFrame({{ video.pk }},'{% url 'extract_current_frame' %}',{{ fps }});" class="btn btn-danger"> 다운</button>
     </div><br><br>
-
+<!--
      <form>
         <div class="form-row">
             <div class="col">
@@ -48,7 +48,7 @@
             <button type="submit" class="save btn btn-success">Save</button>
         </div>
     </form>
-
+-->
     <h1>Tag 정보</h1>
     <div id="chart_placeholder"></div>
     <div style="text-align: center" id="legend"></div>

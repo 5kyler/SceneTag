@@ -248,7 +248,7 @@ def object_tagging(request, video_id, frame_id):
 
     test2 = datetime.strptime('2019-7-20 ' + currenttime, '%Y-%m-%d %H:%M:%S.%f')
 
-    current = time.mktime(test2.timetuple()) + test2.microsecond/1e6
+    current = time.mktime(test2.timetuple()) + test2.microsecond / 1e6
     time_dt = current * 1000
 
     im = cv2.imread(os.path.join(settings.MEDIA_ROOT, str(video_id), u"output", img_name))
@@ -276,18 +276,20 @@ def object_tagging(request, video_id, frame_id):
     object_tags = ObjectTag.objects.filter(video=video_id, frame=frame_id).order_by('-lastSavedDateTime')
 
     form = ObjectTagForm
-
     # canvas
     query_length_object = len(object_tags)
     list_x_object = []
     list_y_object = []
     list_w_object = []
     list_h_object = []
+    list_label_object = []
+
     for i in range(0, query_length_object):
         list_x_object.append(object_tags[i].x1)
         list_y_object.append(object_tags[i].y1)
         list_w_object.append(object_tags[i].w)
         list_h_object.append(object_tags[i].h)
+        list_label_object.append(object_tags[i].get_label_display())
 
     return render(request, 'SceneTagSite/object_tagging.html', {
         'video': video,
@@ -295,11 +297,13 @@ def object_tagging(request, video_id, frame_id):
         'img_url': img_url,
         'object_tags': object_tags,
         'form': form,
+
         # canvas
         'list_x_object': list_x_object,
         'list_y_object': list_y_object,
         'list_w_object': list_w_object,
         'list_h_object': list_h_object,
+        'list_label_object': list_label_object,
         'query_length_object': query_length_object,
     })
 

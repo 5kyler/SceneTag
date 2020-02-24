@@ -662,7 +662,6 @@ eventDropsChart.start(new Date(startTime))
     .eventHover(function(el) {
       var series = el.parentNode.firstChild.innerHTML; //
       var timestamp = d3.select(el).data()[0];
-
       // console.log(series)
       // console.log(timestamp)
 
