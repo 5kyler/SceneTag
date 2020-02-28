@@ -41,7 +41,8 @@
             frame_{{ frame.currentFrame }}
         </div >
         <div  class="col-md-4">
-            <button class="btn btn-outline-info btn_group"><a href="{% url 'object_tagging' video.pk frame.pk %}">Tagging</a></button>
+            <button class="btn btn-outline-info btn_group"><a href="{% url 'object_tagging' video.pk frame.pk %}">수동</a></button>
+            <button class="btn btn-outline-info btn_group"><a href="{% url 'auto_object_tagging' video.pk frame.pk %}">자동</a></button>
         </div >
     </div >
 {% endfor %}

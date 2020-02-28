@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+import csv
+
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -18,7 +20,7 @@ import os
 import json
 import re
 
-from .forms import ShotRotationForm, ObjectTagForm
+from .forms import ShotRotationForm, ObjectTagForm, ObjectTaggingForm
 from .models import ShotRotation, ObjectTag
 
 from datetime import datetime, date
@@ -239,6 +241,23 @@ def frames_grouping(request):
     return HttpResponse(json.dumps(response_datas), 'application/json')
 
 
+def export_object_tag_csv(request, video_id):
+    videos = models.Video.objects.get(pk=video_id).programName
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(videos + '_object_tag')
+
+    writer = csv.writer(response)
+    writer.writerow(['imgName', 'imgWidth', 'imgHeight', 'x1', 'y1', 'w', 'h'])
+
+    object_tags = models.ObjectTag.objects.filter(video__pk=video_id).values_list('imgName', 'imgWidth', 'imgHeight',
+                                                                                  'x1', 'y1', 'w', 'h')
+    for tag in object_tags:
+        writer.writerow(tag),
+
+    return response
+
+
 @csrf_exempt
 def object_tagging(request, video_id, frame_id):
     video = models.Video.objects.get(pk=video_id)
@@ -344,24 +363,31 @@ def get_data(request):  # test
 
     for i in range(0, query_length_tag_1):
         object_list_1.append(objecttag_1[i].currenttime)
+        object_list_1.append(objecttag_1[i].imgName)
 
     for i in range(0, query_length_tag_2):
         object_list_2.append(objecttag_2[i].currenttime)
+        object_list_2.append(objecttag_2[i].imgName)
 
     for i in range(0, query_length_tag_3):
         object_list_3.append(objecttag_3[i].currenttime)
+        object_list_3.append(objecttag_3[i].imgName)
 
     for i in range(0, query_length_tag_4):
         object_list_4.append(objecttag_4[i].currenttime)
+        object_list_4.append(objecttag_4[i].imgName)
 
     for i in range(0, query_length_tag_5):
         object_list_5.append(objecttag_5[i].currenttime)
+        object_list_5.append(objecttag_5[i].imgName)
 
     for i in range(0, query_length_tag_6):
         object_list_6.append(objecttag_6[i].currenttime)
+        object_list_6.append(objecttag_6[i].imgName)
 
     for i in range(0, query_length_tag_7):
         object_list_7.append(objecttag_7[i].currenttime)
+        object_list_7.append(objecttag_7[i].imgName)
 
     test_data = {
         'object_list_1': object_list_1,
@@ -382,6 +408,51 @@ def get_data(request):  # test
         'query_length_tag_7': query_length_tag_7,
     }
     return JsonResponse(test_data)
+
+
+def auto_object_tagging(request, video_id, frame_id):
+    video = models.Video.objects.get(pk=video_id)
+    frame = models.FrameList.objects.get(pk=video_id)
+    img_name = models.FrameList.objects.get(pk=frame_id).imgName
+
+    img_url = '/videos/{}/output/{}'.format(str(video_id), img_name)
+    return render(request, 'SceneTagSite/auto_tagging.html', {
+        'video': video,
+        'frame': frame,
+        'img_url': img_url,
+    })
+
+
+def auto_object_tagging_register(request, video_id, frame_id):
+    video = models.Video.objects.get(pk=video_id)
+    frame = models.FrameList.objects.get(pk=frame_id)
+    form = ObjectTaggingForm(request.POST, request.FILES)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            object_tag = ObjectTag
+            object_tag.video = form.cleaned_data['video']
+            object_tag.frame = form.cleaned_data['frame']
+            object_tag.threshold = form.cleaned_data['threshold']
+            object_tag.module_name = form.cleaned_data['module_name']
+            object_tag.save()
+            return redirect('auto_object_tagging_register', video_id, frame_id)
+    else:
+        form = ObjectTaggingForm
+    return render(request, 'SceneTagSite/auto_tagging_register.html', {
+        'form': form,
+        'video': video,
+        'frame': frame,
+    })
+
+
+def auto_object_tagging_modify(request, video_id, frame_id):
+    video = models.Video.objects.get(pk=video_id)
+    frame = models.FrameList.objects.get(pk=frame_id)
+    return render(request, 'SceneTagSite/auto_tagging_modify.html', {
+        'video': video,
+        'frame': frame,
+    })
 
 
 def shot_rotation(request, video_id, shot_id):

@@ -1,0 +1,63 @@
+{% extends 'SceneTagSite/base.html' %}
+{%  load static %}
+{% load base_tags %}
+
+{% block head %}
+{% endblock head %}
+
+{% block nav %}
+    {% nav_bar %}
+{% endblock nav %}
+
+{% block content %}
+         <div class="alert alert-success" role="alert">
+        비디오 정보 : {{ video.programName }}<br>
+    </div>
+
+    <br>
+    <form method="POST" class="post-form">{% csrf_token %}
+        <p>
+            <label for="id_video">Video</label>
+            <select name="video" class="browser-default custom-select mb-4" required id="id_video" placeholder="Disabled input">
+                <option value="{{ video.id }}">{{ video.programName }}</option>
+            </select>
+        </p>
+
+        <p>
+            <label for="id_frame">Frame</label>
+            <select name="frame" class="browser-default custom-select mb-4" required id="id_frame" placeholder="Disabled input">
+                <option value="{{ frame.id }}">{{ frame }}</option>
+            </select>
+        </p>
+
+        <p>
+            <label for="id_threshold">Threshold</label>
+            <select name="threshold" class="browser-default custom-select mb-4" required id="id_threshold">
+                <option>0</option>
+                <option>0.1</option>
+                <option>0.2</option>
+                <option>0.3</option>
+                <option>0.4</option>
+                <option>0.5</option>
+                <option>0.6</option>
+                <option>0.7</option>
+                <option>0.8</option>
+                <option>0.9</option>
+            </select>
+        </p>
+
+        <p>
+            <label for="id_module_name">Module Name</label>
+            <select name="module_name" class="browser-default custom-select mb-4" required id="id_module_name">
+                <option>korea.place</option>
+                <option>object</option>
+                <option>korea.face</option>
+            </select>
+        </p>
+
+
+        <div class="col-md-12" align="right">
+            <button type="submit" class="save btn btn-success">태그등록</button>
+        </div>
+    </form>
+{% endblock content %}

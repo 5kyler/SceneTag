@@ -12,3 +12,9 @@ class ObjectTagForm(forms.ModelForm):
     class Meta:
         model = ObjectTag
         fields = ('x1', 'y1', 'w', 'h', 'label')
+
+
+class ObjectTaggingForm(forms.ModelForm):
+    class Meta:
+        model = ObjectTag
+        fields = ('video', 'frame', 'threshold', 'module_name')

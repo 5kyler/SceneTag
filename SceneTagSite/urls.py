@@ -35,6 +35,13 @@ urlpatterns = [
     path('tag/<video_id>/<frame_id>/', views.object_tagging, name='object_tagging'),
     path('delete/<video_id>/<tag_pk>/', views.del_object_tagging, name='del_object_tagging'),
 
+    # auto tagging
+    path('<video_id>/auto_tag/<frame_id>/', views.auto_object_tagging, name='auto_object_tagging'),
+    path('<video_id>/auto_tag/<frame_id>/register/', views.auto_object_tagging_register, name='auto_object_tagging_register'),
+    path('<video_id>/auto_tag/<frame_id>/modify/', views.auto_object_tagging_modify, name='auto_object_tagging_modify'),
+    # csv
+    path('export/<video_id>/object/csv/', views.export_object_tag_csv, name='export_object_tag_csv'),
+
     #ajax
     path('ajax/get_data/', views.get_data, name='api-data'),
 ]

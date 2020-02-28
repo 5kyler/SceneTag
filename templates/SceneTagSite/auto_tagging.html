@@ -1,0 +1,96 @@
+{%  extends 'SceneTagSite/base.html' %}
+{%  load static %}
+{% load base_tags %}
+
+{% block head %}
+{% endblock head %}
+
+{% block nav %}
+    {% nav_bar %}
+{% endblock nav %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12" align="center">
+                <div class="card">
+                    <div class="card-header">
+                         <div class="col" style="font-size: 28px;text-align: center" >
+                            <a id="delete_previous_scene_btn" href="#"><i class="far fa-arrow-alt-circle-left"></i></a>
+                                <strong>Auto Object Tagging</strong>
+                            <a id="delete_next_scene_btn" href="#"><i class="far fa-arrow-alt-circle-right"></i></a>
+                         </div>
+                    </div>
+                    <div class="card-body ">
+                        <img id = "target" src="{{ img_url }}" style="width: 724px; height: 408px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+
+        <div id="exampleAccordion" data-children=".item">
+            <div class="row">
+                <div class="item col-md-4 card" style="text-align: center">
+                    <a data-toggle="collapse" data-parent="#exampleAccordion" href="#exampleAccordion1" aria-expanded="true" aria-controls="exampleAccordion1">
+                        <h4 class="card-header">장소</h4>
+                    </a>
+                    <div id="exampleAccordion1" class="collapse show" role="tabpanel">
+                        <p>
+                            <br>
+                            {% for tag in scene_tag_result_place %}
+{#                                {{ tag }}<br>#}
+                                {{ tag|join:": "  }}<br>
+                            {% endfor %}
+
+                            {#                            {% for label_tag in label_scene_tag_result %}#}
+                            {#                                {{ label_tag.get_scene_description_first_display }}<br>#}
+                            {#                                {{ label_tag.get_scene_description_second_display }}<br>#}
+                            {#                                {{ label_tag.get_scene_description_third_display }}<br><br>#}
+                            {#                                <a href="{% url 'edit_scene_tag_form' video.pk scene.pk %}">수동 태그 수정<i class="fas fa-edit"></i></a>#}
+                            {#                            {% endfor %}#}
+                            {##}
+                            {#                            {% if not label_scene_tag_result %}#}
+                            {#                                <a href="{% url 'scene_tag_register' video.pk scene.pk %}">수동 태그 등록 <i class="fas fa-tags"></i></a><br><br>#}
+                            {#                            {% endif %}#}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="item col-md-4 card" style="text-align: center">
+                    <a data-toggle="collapse" data-parent="#exampleAccordion" href="#exampleAccordion2" aria-expanded="false" aria-controls="exampleAccordion2">
+                        <h4 class="card-header">객체</h4>
+                    </a>
+                    <div id="exampleAccordion2" class="collapse show" role="tabpanel">
+                        <p class="mb-3"><br>
+                            {% for tag in scene_tag_result_object %}
+                                {{ tag|join:": "  }} <br>
+                            {% endfor %}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="item col-md-4 card " style="text-align: center;">
+                    <a data-toggle="collapse" data-parent="#exampleAccordion" href="#exampleAccordion3" aria-expanded="false" aria-controls="exampleAccordion3">
+                        <h4 class="card-header">인물</h4>
+                    </a>
+                    <div id="exampleAccordion3" class="collapse show" role="tabpanel"><br>
+                        <p class="mb-3">
+                            {% for tag in scene_tag_result_face %}
+                                {{ tag|join:": "  }} <br>
+                            {% endfor %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <a href="{% url 'auto_object_tagging_register' video.pk frame.pk %}" class="btn btn-success btn-block">태그 등록</a>
+    <br>
+    <a href="{% url 'auto_object_tagging_modify' video.pk frame.pk %}" class="btn btn-primary btn-block">태그 수정</a>
+{% endblock content %}
+
+{% block jquery %}
+       <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+{% endblock jquery %}

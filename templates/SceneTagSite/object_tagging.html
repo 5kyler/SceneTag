@@ -74,7 +74,7 @@
 
     <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery.Jcrop.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'css/jquery.Jcrop.css' %}">
+    <link rel="stylesheet" href="{% static 'css/jquery.Jcrop.css' %}"/>
     <script src="{% static 'js/object_tagging.js' %}"></script>
 
     <script>
@@ -119,9 +119,14 @@
                     context.stroke();
                     context.font = "20px Arial black";
                     context.textBaseline = "bottom";
-                    context.strokeText(label_list_object[i], x_list_object[i], y_list_object[i]);
+                    if( 20 < y_list_object[i]) {
+                        context.strokeText(label_list_object[i], x_list_object[i], y_list_object[i]);
+                    }else{
+                        context.strokeText(label_list_object[i], x_list_object[i], y_list_object[i] + 28 );
+                    }
+
                 }
             }
         }
     </script>
-{% endblock %}
+{% endblock jquery %}
