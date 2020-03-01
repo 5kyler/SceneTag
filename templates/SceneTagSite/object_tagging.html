@@ -94,13 +94,14 @@
             var w_object = {{ list_w_object }}
             var h_object = {{ list_h_object }}
             var label_object = {{ list_label_object|safe|escape }}
-
+            var id_object = {{ list_id_object }}
 
             x_list_object = Object.values(x_object)
             y_list_object = Object.values(y_object)
             w_list_object = Object.values(w_object)
             h_list_object = Object.values(h_object)
             label_list_object = Object.values(label_object)
+            id_list_object = Object.values(id_object)
 
             console.log(x_object[0])
             console.log(label_object[0])
@@ -120,9 +121,9 @@
                     context.font = "20px Arial black";
                     context.textBaseline = "bottom";
                     if( 20 < y_list_object[i]) {
-                        context.strokeText(label_list_object[i], x_list_object[i], y_list_object[i]);
+                        context.strokeText(label_list_object[i] + "(" + id_list_object[i] + ")", x_list_object[i], y_list_object[i]);
                     }else{
-                        context.strokeText(label_list_object[i], x_list_object[i], y_list_object[i] + 28 );
+                        context.strokeText(label_list_object[i] + "(" + id_list_object[i] + ")", x_list_object[i], y_list_object[i] + 28 );
                     }
 
                 }

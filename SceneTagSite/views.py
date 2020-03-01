@@ -2,6 +2,9 @@ from __future__ import unicode_literals
 
 import csv
 
+from django.core import serializers
+from django.db.models import Sum
+from django.forms import modelformset_factory
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -11,6 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from SceneTagSite import models
 from SceneTagSite.utils import file_control
 from SceneTagSite.utils import frame_extractor
+from collections import Counter
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views import View
@@ -20,8 +24,8 @@ import os
 import json
 import re
 
-from .forms import ShotRotationForm, ObjectTagForm, ObjectTaggingForm
-from .models import ShotRotation, ObjectTag
+from .forms import ShotRotationForm, ObjectTagForm, ObjectTaggingForm, ResultTagForm
+from .models import ShotRotation, ObjectTag, ManualTagResult, AutoObjectTag
 
 from datetime import datetime, date
 import time
@@ -302,6 +306,7 @@ def object_tagging(request, video_id, frame_id):
     list_w_object = []
     list_h_object = []
     list_label_object = []
+    list_id_object = []
 
     for i in range(0, query_length_object):
         list_x_object.append(object_tags[i].x1)
@@ -309,6 +314,7 @@ def object_tagging(request, video_id, frame_id):
         list_w_object.append(object_tags[i].w)
         list_h_object.append(object_tags[i].h)
         list_label_object.append(object_tags[i].get_label_display())
+        list_id_object.append(object_tags[i].pk)
 
     return render(request, 'SceneTagSite/object_tagging.html', {
         'video': video,
@@ -323,6 +329,7 @@ def object_tagging(request, video_id, frame_id):
         'list_w_object': list_w_object,
         'list_h_object': list_h_object,
         'list_label_object': list_label_object,
+        'list_id_object': list_id_object,
         'query_length_object': query_length_object,
     })
 
@@ -412,15 +419,59 @@ def get_data(request):  # test
 
 def auto_object_tagging(request, video_id, frame_id):
     video = models.Video.objects.get(pk=video_id)
-    frame = models.FrameList.objects.get(pk=video_id)
+    frame = models.FrameList.objects.get(pk=frame_id)
     img_name = models.FrameList.objects.get(pk=frame_id).imgName
-
     img_url = '/videos/{}/output/{}'.format(str(video_id), img_name)
+
+    object_tag_result_place = models.ManualTagResult.objects.filter(manual_tag_result__frame__pk=frame_id,
+                                                                    manual_module_name='korea.place').values_list(
+        'manual_description').annotate(total=Sum('manual_score')).order_by('-total')[:5]
+    object_tag_result_face = models.ManualTagResult.objects.filter(manual_tag_result__frame__pk=frame_id,
+                                                                   manual_module_name='korea.face').values_list(
+        'manual_description').annotate(total=Sum('manual_score')).order_by('-total')[:5]
+    object_tag_result_object = Counter(models.ManualTagResult.objects.filter(manual_tag_result__frame__pk=frame_id,
+                                                                             manual_module_name='object').values_list(
+        'manual_description', flat=True))
+    object_tag_result_object = object_tag_result_object.most_common(5)
+
     return render(request, 'SceneTagSite/auto_tagging.html', {
         'video': video,
         'frame': frame,
         'img_url': img_url,
+        'object_tag_result_place': object_tag_result_place,
+        'object_tag_result_face': object_tag_result_face,
+        'object_tag_result_object': object_tag_result_object,
     })
+
+
+def object_tag_info_json(request, video_id, frame_id):
+    video = models.Video.objects.filter(pk=video_id)
+    frame = models.FrameList.objects.filter(pk=frame_id)
+    object_tag_result_place = models.ManualTagResult.objects.filter(manual_tag_result__frame__pk=frame_id,
+                                                                    manual_module_name='korea.place')
+    object_tag_result_face = models.ManualTagResult.objects.filter(manual_tag_result__frame__pk=frame_id,
+                                                                   manual_module_name='korea.face')
+    object_tag_result_object = Counter(
+        models.ManualTagResult.objects.filter(manual_tag_result__frame__pk=frame_id, manual_module_name='object'))
+
+    retdata = {}
+
+    data = serializers.serialize('json', video)
+    retdata['video'] = data
+
+    data = serializers.serialize('json', frame)
+    retdata['frame'] = data
+
+    data = serializers.serialize('json', object_tag_result_place)
+    retdata['object_tag_result_place'] = data
+
+    data = serializers.serialize('json', object_tag_result_face)
+    retdata['object_tag_result_face'] = data
+
+    data = serializers.serialize('json', object_tag_result_object)
+    retdata['object_tag_result_object'] = data
+
+    return JsonResponse(retdata)
 
 
 def auto_object_tagging_register(request, video_id, frame_id):
@@ -430,15 +481,15 @@ def auto_object_tagging_register(request, video_id, frame_id):
 
     if request.method == 'POST':
         if form.is_valid():
-            object_tag = ObjectTag
+            object_tag = AutoObjectTag()
             object_tag.video = form.cleaned_data['video']
             object_tag.frame = form.cleaned_data['frame']
             object_tag.threshold = form.cleaned_data['threshold']
             object_tag.module_name = form.cleaned_data['module_name']
             object_tag.save()
-            return redirect('auto_object_tagging_register', video_id, frame_id)
+            return redirect('auto_object_tagging', video_id, frame_id)
     else:
-        form = ObjectTaggingForm
+        form = ObjectTaggingForm()
     return render(request, 'SceneTagSite/auto_tagging_register.html', {
         'form': form,
         'video': video,
@@ -447,11 +498,16 @@ def auto_object_tagging_register(request, video_id, frame_id):
 
 
 def auto_object_tagging_modify(request, video_id, frame_id):
-    video = models.Video.objects.get(pk=video_id)
-    frame = models.FrameList.objects.get(pk=frame_id)
+    ResultTagFormSet = modelformset_factory(ManualTagResult, form=ResultTagForm, extra=0)
+    formset = ResultTagFormSet(request.POST or None,
+                               queryset=ManualTagResult.objects.filter(manual_tag_result__frame__pk=frame_id))
+    if formset.is_valid():
+        instances = formset.save(commit=False)
+        for instance in instances:
+            instance.save()
+        return redirect('auto_object_tagging', video_id, frame_id)
     return render(request, 'SceneTagSite/auto_tagging_modify.html', {
-        'video': video,
-        'frame': frame,
+        'formset': formset,
     })
 
 

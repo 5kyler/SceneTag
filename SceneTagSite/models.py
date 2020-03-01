@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 import ast
-
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
@@ -97,8 +96,6 @@ class ShotRotation(models.Model):
 class ObjectTag(models.Model):
     video = models.ForeignKey(Video, on_delete=models.CASCADE)
     frame = models.ForeignKey(FrameList, on_delete=models.CASCADE, null=True)
-    module_name = models.TextField(blank=True)
-    test = models.TextField(blank=True)
     currenttime = models.CharField(max_length=255, blank=True)
     imgName = models.CharField(max_length=255)
     imgWidth = models.IntegerField(default=0)
@@ -109,7 +106,6 @@ class ObjectTag(models.Model):
     h = models.IntegerField(default=0)
     label = models.IntegerField(choices=OBJECT_CHOICES, default=0)
     lastSavedDateTime = models.DateTimeField(default=timezone.now)
-    threshold = models.FloatField(default=0)
 
     def __unicode__(self):
         name = u'Object_pk:' + str(self.pk)
@@ -117,7 +113,27 @@ class ObjectTag(models.Model):
 
     def save(self, *args, **kwargs):
         super(ObjectTag, self).save(*args, **kwargs)
-        self.test = str(tasks.communicator("http://mlcoconut.sogang.ac.kr:8000/analyzer/", self.frame, modules=str(self.module_name)))
+
+
+class AutoObjectTag(models.Model):
+    video = models.ForeignKey(Video, on_delete=models.CASCADE)
+    frame = models.ForeignKey(FrameList, on_delete=models.CASCADE)
+    module_name = models.TextField(blank=True)
+    test = models.TextField(blank=True)
+    x = models.FloatField(null=True, unique=False)
+    y = models.FloatField(null=True, unique=False)
+    w = models.FloatField(null=True, unique=False)
+    h = models.FloatField(null=True, unique=False)
+    threshold = models.FloatField(default=0)
+
+    def __unicode__(self):
+        name = u'AutoObjectTag_pk :' + str(self.pk)
+        return name
+
+    def save(self, *args, **kwargs):
+        super(AutoObjectTag, self).save(*args, **kwargs)
+        self.test = str(tasks.communicator("http://mlcoconut.sogang.ac.kr:8000/analyzer/", self.frame,
+                                           modules=str(self.module_name)))
 
         json_data = ast.literal_eval(self.test)
         for modules_results in json_data:
@@ -137,7 +153,19 @@ class ObjectTag(models.Model):
                         self.manual_tag.create(manual_description=labels['description'], manual_score=temp_int,
                                                manual_module_name=self.module_name, x=self.x, y=self.y, w=self.w,
                                                h=self.h)
-                        self.auto_tag.create(auto_description=labels['description'], auto_score=temp_int,
-                                             auto_module_name=self.module_name, x=self.x, y=self.y, w=self.w, h=self.h)
+        super(AutoObjectTag, self).save()
 
-        super(ObjectTag, self).save()
+
+class ManualTagResult(models.Model):
+    manual_tag_result = models.ForeignKey(AutoObjectTag, related_name='manual_tag', on_delete=models.CASCADE)
+    manual_module_name = models.TextField(blank=True)
+    manual_description = models.TextField(null=True, unique=False)
+    manual_score = models.FloatField(null=True, unique=False)
+    x = models.FloatField(null=True, unique=False)
+    y = models.FloatField(null=True, unique=False)
+    w = models.FloatField(null=True, unique=False)
+    h = models.FloatField(null=True, unique=False)
+
+    def __unicode__(self):
+        name = u'ManualTagResult_pk :' + str(self.pk)
+        return name

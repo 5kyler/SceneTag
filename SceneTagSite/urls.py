@@ -36,6 +36,7 @@ urlpatterns = [
     path('delete/<video_id>/<tag_pk>/', views.del_object_tagging, name='del_object_tagging'),
 
     # auto tagging
+    path('<video_id>/auto_tag/<frame_id>/json', views.object_tag_info_json, name='object_tag_json'),
     path('<video_id>/auto_tag/<frame_id>/', views.auto_object_tagging, name='auto_object_tagging'),
     path('<video_id>/auto_tag/<frame_id>/register/', views.auto_object_tagging_register, name='auto_object_tagging_register'),
     path('<video_id>/auto_tag/<frame_id>/modify/', views.auto_object_tagging_modify, name='auto_object_tagging_modify'),

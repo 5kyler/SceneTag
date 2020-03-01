@@ -5,12 +5,13 @@ from django.conf import settings
 
 
 def communicator(server_url, frame, modules=None):
-    start_frame = frame.start_frame
+    frame_id = frame.pk
+    frame_name = frame.imgName
     video_id = frame.video.pk
-    image_path = os.path.join(settings.MEDIA_ROOT, str(video_id), u"_frame" + str(start_frame) + u".jpg")
+    image_path = os.path.join(settings.MEDIA_ROOT, str(video_id), u"output", frame_name)
 
-    if modules is not None :
-        json_data = {'modules' : modules}
+    if modules is not None:
+        json_data = {'modules': modules}
     else:
         json_data = {}
     print(json_data)

@@ -1,0 +1,53 @@
+{% extends 'SceneTagSite/base.html' %}
+{%  load static %}
+{% load base_tags %}
+
+{% block head %}
+    <link href="{% static "css/tag_form_styles.css" %}" rel="stylesheet">
+{% endblock head %}
+
+{% block nav %}
+    {% nav_bar %}
+{% endblock nav %}
+
+{% block content %}
+      <div class="col" style="font-size: 28px;text-align: center" >
+        <strong>태그 수정</strong>
+    </div><br>
+    <form method="post" novalidate>{% csrf_token %}
+        {{ formset.management_form }}
+
+        <table class="table table-borderless">
+            <thead>
+            <tr>
+                <th scope="col">module name</th>
+                <th scope="col">수정할 tag</th>
+                <th scope="col">score</th>
+            </tr>
+            </thead>
+            <tbody>
+            {%  for form in formset %}
+                {{ form.id }}
+                <tr>
+                    {% if forloop %}
+                        {% for field in form.manual_module_name %}
+                            <td>{{ field }}<br></td>
+                        {% endfor %}
+                        {% for field in form.manual_description %}
+                            <td>{{ field }}</td>
+                        {% endfor %}
+                        {% for field in form.manual_score %}
+                            <td>{{ field }}</td>
+                        {% endfor %}
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="col-md-12" align="right">
+            <button type="submit" class="save btn btn-success btn-block">Save</button>
+        </div>
+
+    </form>
+{% endblock content %}
