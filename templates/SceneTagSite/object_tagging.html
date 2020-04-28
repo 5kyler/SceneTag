@@ -12,22 +12,27 @@
 {% block content %}
     {% csrf_token %}
     <form method="post" id="object_tag">
-        <div class="col-md-12" align="center">
-            <div class="card">
-                <div class="card-header">
-                    <div class="col" style="font-size: 28px; text-align: center">
-                        <a id="previous_keyframe_btn" href="#"><i class="far fa-arrow-alt-circle-left"></i></a>
-                        <strong>Object Tagging</strong>
-                        <a id="next_keyframe_btn" href="#"><i class="far fa-arrow-alt-circle-right"></i></a>
-                    </div><br>
-                </div>
-                <div class="card-body">
-                    <canvas id="myCanvas" width="724" height="408"></canvas><br>
-                    <img id = "target" src="{{ img_url }}" style="display: none; visibility: hidden;">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12" align="center">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="col" style="font-size: 28px; text-align: center">
+                            <a id="previous_keyframe_btn" href="{% url 'object_tagging' video.pk prev_url %}"><i class='far fa-arrow-alt-circle-left' style='font-size:36px'></i></a>
+                            <strong>Object Tagging</strong>
+                            <a id="next_keyframe_btn" href="{% url 'object_tagging' video.pk next_url %}"><i class="far fa-arrow-alt-circle-right" style='font-size:36px'></i></a>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="card-body">
+                        <canvas id="myCanvas" width="724" height="408"></canvas>
+                        <br>
+                        <img id = "target" src="{{ img_url }}" style="display: none; visibility: hidden;">
+                    </div>
                 </div>
             </div>
         </div>
-        <br>
+
 
         <div class="inline_labels" align="center">
             <label>X1<input class="browser-default custom-select mb-1" type="text" size="4" id="x1" name="x1"></label>
@@ -45,29 +50,35 @@
             </label>
             <label><button id="save" type="submit" class="save btn btn-success">Save</button></label>
         </div>
-    </form><br>
+        <br>
+        <table id="shots-tagWrapper" align="center" class="table table-striped">
+            <thead id="table-header">
+            <th class="row">
+                <div class="col-md-3" align="center">TAG ID</div>
+                <div class="col-md-3" align="center">X , Y , W , H</div>
+                <div class="col-md-3" align="center">OBJECT TAG</div>
+                <div class="col-md-3" align="center">DELETE</div>
+            </th>
+            </thead>
+            <tbody>
+            {% for tag in object_tags %}
+                <tr class="row" align="center">
+                    <td class="col-md-3">{{ tag.pk }}</td>
+                    <td class="col-md-3">( {{ tag.x1 }} , {{ tag.y1 }} , {{ tag.w }} , {{ tag.h }} )</td>
+                    <td class="col-md-3">{{ tag.get_label_display }}</td>
+                    <td class="col-md-3">
+                        <button class="btn btn-outline-info btn_group">
+                            <a href="{% url 'del_object_tagging' video.pk tag.pk %}">delete</a>
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    </form>
 
-    <table id="shots-tagWrapper" align="center" class="table table-striped">
-        <thead id="table-header">
-        <th class="row">
-            <div class="col-md-3" align="center">TAG ID</div>
-            <div class="col-md-3" align="center">X , Y , W , H</div>
-            <div class="col-md-3" align="center">OBJECT TAG</div>
-            <div class="col-md-3" align="center">DELETE</div>
-        </th>
-        </thead>
-        <tbody>
-        {% for tag in object_tags %}
-            <tr class="row" align="center">
-                <td class="col-md-3">{{ tag.pk }}</td>
-                <td class="col-md-3">( {{ tag.x1 }} , {{ tag.y1 }} , {{ tag.w }} , {{ tag.h }} )</td>
-                <td class="col-md-3">{{ tag.get_label_display }}</td>
-                <td class="col-md-3"><button class="btn btn-outline-info btn_group"><a href="{% url 'del_object_tagging' video.pk tag.pk %}">delete</a></button></td>
 
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
 {% endblock content %}
 
 {% block jquery %}

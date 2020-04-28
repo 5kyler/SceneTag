@@ -21,8 +21,9 @@ def communicator(server_url, frame, modules=None):
 
     result_response = requests.post(url=server_url, data=json_data, files=json_files)
     result_data = json.loads(result_response.content)
-
+    print("result_dat:", result_data)
     result = result_data['results']
+
     json_image.close()
 
     return result

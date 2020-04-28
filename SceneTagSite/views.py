@@ -25,14 +25,13 @@ import json
 import re
 
 from .forms import ShotRotationForm, ObjectTagForm, ObjectTaggingForm, ResultTagForm
-from .models import ShotRotation, ObjectTag, ManualTagResult, AutoObjectTag
+from .models import ShotRotation, ObjectTag, AutoTagResult, AutoObjectTag
 
 from datetime import datetime, date
 import time
 
 
 # Create your views here.
-
 
 def video_list(request, list_page):
     videos = models.Video.objects.all().order_by('-pk')
@@ -316,12 +315,24 @@ def object_tagging(request, video_id, frame_id):
         list_label_object.append(object_tags[i].get_label_display())
         list_id_object.append(object_tags[i].pk)
 
+        # make prev, next url (수정 필요 current_time으로 정렬)
+    try:
+        prev_url = models.FrameList.objects.filter(id__lt=frame_id, video=video).order_by("-id")[0:1].get().id
+    except:
+        prev_url = frame_id
+    try:
+        next_url = models.FrameList.objects.filter(id__gt=frame_id, video=video).order_by("id")[0:1].get().id
+    except models.FrameList.DoesNotExist:
+        next_url = frame_id
+
     return render(request, 'SceneTagSite/object_tagging.html', {
         'video': video,
         'frame': frame,
         'img_url': img_url,
         'object_tags': object_tags,
         'form': form,
+        'prev_url': prev_url,
+        'next_url': next_url,
 
         # canvas
         'list_x_object': list_x_object,
@@ -331,6 +342,117 @@ def object_tagging(request, video_id, frame_id):
         'list_label_object': list_label_object,
         'list_id_object': list_id_object,
         'query_length_object': query_length_object,
+    })
+
+
+def bbox(request, video_id, frame_id):
+    video = models.Video.objects.get(pk=video_id)
+    frame = models.FrameList.objects.get(pk=frame_id)
+    img_name = models.FrameList.objects.get(pk=frame_id).imgName
+
+    img_url = '/videos/{}/output/{}'.format(str(video_id), img_name)
+    object_tag_result_place = models.AutoTagResult.objects.filter(auto_tag_result__frame__pk=frame_id,
+                                                                  auto_module_name='korea.place')
+    object_tag_result_face = models.AutoTagResult.objects.filter(auto_tag_result__frame__pk=frame_id,
+                                                                 auto_module_name='korea.face')
+    object_tag_result_object = models.AutoTagResult.objects.filter(auto_tag_result__frame__pk=frame_id, auto_module_name='object')
+
+    # place
+    query_length_place = len(object_tag_result_place)
+    list_x_place = []
+    list_y_place = []
+    list_w_place = []
+    list_h_place = []
+    for i in range(0, query_length_place):
+        list_x_place.append(object_tag_result_place[i].x)
+        list_y_place.append(object_tag_result_place[i].y)
+        list_w_place.append(object_tag_result_place[i].w)
+        list_h_place.append(object_tag_result_place[i].h)
+
+    place_description = []
+    place_score = []
+    for i in range(0, query_length_place):
+        place_description.append(object_tag_result_place[i].auto_description)
+        place_score.append(object_tag_result_place[i].auto_score)
+
+    # face
+    query_length_face = len(object_tag_result_face)
+
+    list_x_face = []
+    list_y_face = []
+    list_w_face = []
+    list_h_face = []
+    for i in range(0, query_length_face, 5):
+        list_x_face.append(object_tag_result_face[i].x)
+        list_y_face.append(object_tag_result_face[i].y)
+        list_w_face.append(object_tag_result_face[i].w)
+        list_h_face.append(object_tag_result_face[i].h)
+
+    face_description = []
+    face_score = []
+    for i in range(0,query_length_face):
+        face_description.append(object_tag_result_face[i].auto_description)
+        face_score.append(object_tag_result_face[i].auto_score)
+    face_num = int(query_length_face / 5)
+    top1_face_object = []
+    for index, item in enumerate(object_tag_result_face):
+        if (index % 5 == 0):
+            top1_face_object.append(item)
+
+    # object
+    query_length_object = len(object_tag_result_object)
+    list_x_object = []
+    list_y_object = []
+    list_w_object = []
+    list_h_object = []
+    for i in range(0,query_length_object):
+        list_x_object.append(object_tag_result_object[i].x)
+        list_y_object.append(object_tag_result_object[i].y)
+        list_w_object.append(object_tag_result_object[i].w)
+        list_h_object.append(object_tag_result_object[i].h)
+
+    obj_description=[]
+    obj_score=[]
+    for i in range(0,query_length_object):
+        obj_description.append(object_tag_result_object[i].auto_description)
+        obj_score.append(object_tag_result_object[i].auto_score)
+
+    return render(request, 'SceneTagSite/bbox.html', {
+        'video': video,
+        'frame': frame,
+        'img_url': img_url,
+        'object_tag_result_place': object_tag_result_place,
+        'object_tag_result_face': object_tag_result_face,
+        'object_tag_result_object': object_tag_result_object,
+
+        # object
+        'query_length_object': query_length_object,
+        'list_x_object': list_x_object,
+        'list_y_object': list_y_object,
+        'list_w_object': list_w_object,
+        'list_h_object': list_h_object,
+        'obj_description': obj_description,
+        'obj_score': obj_score,
+
+        # place
+        'query_length_place': query_length_place,
+        'list_x_place': list_x_place,
+        'list_y_place': list_y_place,
+        'list_w_place': list_w_place,
+        'list_h_place': list_h_place,
+        'place_description': place_description,
+        'place_score': place_score,
+
+        # face
+        'query_length_face': query_length_face,
+        'list_x_face': list_x_face,
+        'list_y_face': list_y_face,
+        'list_w_face': list_w_face,
+        'list_h_face': list_h_face,
+        'face_description': face_description,
+        'face_score': face_score,
+        'range': range(face_num),
+        'top1_face_object': top1_face_object,
     })
 
 
@@ -344,6 +466,14 @@ def del_object_tagging(request, video_id, tag_pk):
 def get_data(request):  # test
 
     video_pk = int(request.GET['video_pk'])
+    # for i in range(1, 7):
+    #     globals()['objecttag_{}'.format(i)] = models.ObjectTag.objects.filter(video__pk=video_pk, label= i)
+    #     globals()['query_length_tag_{}'.format(i)] = len(globals()['objecttag_{}'.format(i)])
+    #     globals()['object_list_{}'.format(i)] = []
+    #     for j in range(0, globals()['query_length_tag_{}'.format(j)]):
+    #         globals()['object_list_{}'.format(j)].append(globals()['objecttag_{}'.format(j)].currenttime)
+    #         globals()['object_list_{}'.format(j)].append(globals()['objecttag_{}'.format(j)].imgName)
+
     objecttag_1 = models.ObjectTag.objects.filter(video__pk=video_pk, label="1")
     objecttag_2 = models.ObjectTag.objects.filter(video__pk=video_pk, label="2")
     objecttag_3 = models.ObjectTag.objects.filter(video__pk=video_pk, label="3")
@@ -371,6 +501,10 @@ def get_data(request):  # test
     for i in range(0, query_length_tag_1):
         object_list_1.append(objecttag_1[i].currenttime)
         object_list_1.append(objecttag_1[i].imgName)
+        object_list_1.append(objecttag_1[i].x1)
+        object_list_1.append(objecttag_1[i].y1)
+        object_list_1.append(objecttag_1[i].w)
+        object_list_1.append(objecttag_1[i].h)
 
     for i in range(0, query_length_tag_2):
         object_list_2.append(objecttag_2[i].currenttime)
@@ -423,16 +557,30 @@ def auto_object_tagging(request, video_id, frame_id):
     img_name = models.FrameList.objects.get(pk=frame_id).imgName
     img_url = '/videos/{}/output/{}'.format(str(video_id), img_name)
 
-    object_tag_result_place = models.ManualTagResult.objects.filter(manual_tag_result__frame__pk=frame_id,
-                                                                    manual_module_name='korea.place').values_list(
-        'manual_description').annotate(total=Sum('manual_score')).order_by('-total')[:5]
-    object_tag_result_face = models.ManualTagResult.objects.filter(manual_tag_result__frame__pk=frame_id,
-                                                                   manual_module_name='korea.face').values_list(
-        'manual_description').annotate(total=Sum('manual_score')).order_by('-total')[:5]
-    object_tag_result_object = Counter(models.ManualTagResult.objects.filter(manual_tag_result__frame__pk=frame_id,
-                                                                             manual_module_name='object').values_list(
-        'manual_description', flat=True))
+
+    object_tag_result_place =  models.AutoTagResult.objects.filter(auto_tag_result__frame__pk=frame_id,
+                                                                  auto_module_name='korea.place').values_list(
+        'auto_description').annotate(total=Sum('auto_score')).order_by('-total')[:5]
+
+    object_tag_result_face = models.AutoTagResult.objects.filter(auto_tag_result__frame__pk=frame_id,
+                                                                 auto_module_name='korea.face').values_list(
+        'auto_description').annotate(total=Sum('auto_score')).order_by('-total')[:5]
+    object_tag_result_object = Counter(models.AutoTagResult.objects.filter(auto_tag_result__frame__pk=frame_id,
+                                                                           auto_module_name='object').values_list(
+        'auto_description', flat=True))
     object_tag_result_object = object_tag_result_object.most_common(5)
+
+
+
+    # make prev, next url (수정 필요 current_time으로 정렬)
+    try:
+        prev_url = models.FrameList.objects.filter(id__lt=frame_id, video=video).order_by("-id")[0:1].get().id
+    except:
+        prev_url = frame_id
+    try:
+        next_url = models.FrameList.objects.filter(id__gt=frame_id, video=video).order_by("id")[0:1].get().id
+    except models.FrameList.DoesNotExist:
+        next_url = frame_id
 
     return render(request, 'SceneTagSite/auto_tagging.html', {
         'video': video,
@@ -441,18 +589,23 @@ def auto_object_tagging(request, video_id, frame_id):
         'object_tag_result_place': object_tag_result_place,
         'object_tag_result_face': object_tag_result_face,
         'object_tag_result_object': object_tag_result_object,
+        'prev_url': prev_url,
+        'next_url': next_url,
+
+
+
     })
 
 
 def object_tag_info_json(request, video_id, frame_id):
     video = models.Video.objects.filter(pk=video_id)
     frame = models.FrameList.objects.filter(pk=frame_id)
-    object_tag_result_place = models.ManualTagResult.objects.filter(manual_tag_result__frame__pk=frame_id,
-                                                                    manual_module_name='korea.place')
-    object_tag_result_face = models.ManualTagResult.objects.filter(manual_tag_result__frame__pk=frame_id,
-                                                                   manual_module_name='korea.face')
+    object_tag_result_place = models.AutoTagResult.objects.filter(auto_tag_result__frame__pk=frame_id,
+                                                                    auto_module_name='korea.place')
+    object_tag_result_face = models.AutoTagResult.objects.filter(auto_tag_result__frame__pk=frame_id,
+                                                                   auto_module_name='korea.face')
     object_tag_result_object = Counter(
-        models.ManualTagResult.objects.filter(manual_tag_result__frame__pk=frame_id, manual_module_name='object'))
+        models.AutoTagResult.objects.filter(auto_tag_result__frame__pk=frame_id, auto_module_name='object'))
 
     retdata = {}
 
@@ -498,9 +651,9 @@ def auto_object_tagging_register(request, video_id, frame_id):
 
 
 def auto_object_tagging_modify(request, video_id, frame_id):
-    ResultTagFormSet = modelformset_factory(ManualTagResult, form=ResultTagForm, extra=0)
+    ResultTagFormSet = modelformset_factory(AutoTagResult, form=ResultTagForm, extra=0)
     formset = ResultTagFormSet(request.POST or None,
-                               queryset=ManualTagResult.objects.filter(manual_tag_result__frame__pk=frame_id))
+                               queryset=AutoTagResult.objects.filter(auto_tag_result__frame__pk=frame_id))
     if formset.is_valid():
         instances = formset.save(commit=False)
         for instance in instances:

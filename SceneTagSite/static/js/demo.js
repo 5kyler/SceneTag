@@ -397,7 +397,7 @@
     "use strict";
     /* global module */
 
-    module.exports = function filterDate(data, scale) {
+    module.exports = function filterData(data, scale) {
       data = data || [];
       var filteredData = [];
       var boundary = scale.range();
@@ -506,13 +506,13 @@ var chartPlaceholder = document.getElementById('chart_placeholder');
 
 var data = [
 
-  { name: "사람", dates: [], color: "blue" },
-  { name: "호랑이", dates: [] , color: "red" },
-  { name: "곰", dates: [], color: "yellow"  },
-  { name: "가로등", dates: [], color: "green"  },
-  { name: "양탄자", dates: [], color: "black"  },
-  { name: "가방", dates: [], color: "pink"  },
-  { name: "병", dates: [], color: "purple"  },
+  { name: "보행자", dates: [], img:[],  color: "blue" },
+  { name: "신호등", dates: [] , img:[], color: "red" },
+  { name: "자동차", dates: [], img:[], color: "yellow"  },
+  { name: "가로등", dates: [], img:[], color: "green"  },
+  { name: "표지판", dates: [], img:[], color: "black"  },
+  { name: "횡단보도", dates: [], img:[], color: "pink"  },
+  { name: "전봇대", dates: [], img:[], color: "purple"  },
 ];
 console.log(data)
 
@@ -595,8 +595,16 @@ function getTimeLine(video_pk, url){
           // data[0].dates.push(new Date(current_dt));
           // console.log(data[0])
           var time = Math.floor((Math.random() * oneMonth)) + startTime
+
+          var image = object_list_1[(max0+1)*j+1]
+
           data[0].dates.push(new Date(time));
+          data[0].img.push(image);
+          //console.log(image)
+          //console.log(data[0].dates.push(new Date(time)))
+          //console.log(new Date(time))
         }
+
         for (var j = 0; j < max1; j++) {
 
           //data format 맞춰줘야합
@@ -662,12 +670,6 @@ function getTimeLine(video_pk, url){
 
 
 
-
-
-
-
-
-
 //information
 var eventDropsChart = d3.chart.eventDrops();
 eventDropsChart.start(new Date(startTime))
@@ -685,17 +687,20 @@ eventDropsChart.start(new Date(startTime))
     .eventHover(function(el) {
       var series = el.parentNode.firstChild.innerHTML;
       var timestamp = d3.select(el).data()[0];
-      var image = d3.select(el).data()[1];
-      console.log(image)
-     // console.log(series)
-     // console.log(timestamp)
+      console.log(d3.select(el))
+      console.log(d3.select())
+      //console.log(series)
+      //console.log(timestamp)
+
 
       document.getElementById('legend').innerHTML = 'Hovering [' + timestamp + '] in series "' + series + '"'; //information
+
     });
+
+
 
 d3.select('#chart_placeholder')
     .datum(data)
     .call(eventDropsChart);
-
 
 

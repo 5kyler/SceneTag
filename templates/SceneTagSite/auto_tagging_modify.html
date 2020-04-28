@@ -30,13 +30,13 @@
                 {{ form.id }}
                 <tr>
                     {% if forloop %}
-                        {% for field in form.manual_module_name %}
+                        {% for field in form.auto_module_name %}
                             <td>{{ field }}<br></td>
                         {% endfor %}
-                        {% for field in form.manual_description %}
+                        {% for field in form.auto_description %}
                             <td>{{ field }}</td>
                         {% endfor %}
-                        {% for field in form.manual_score %}
+                        {% for field in form.auto_score %}
                             <td>{{ field }}</td>
                         {% endfor %}
                     {% endif %}

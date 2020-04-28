@@ -1,0 +1,220 @@
+{% extends 'SceneTagSite/base.html' %}
+{% load static %}
+{% load base_tags %}
+
+{% block head %}
+{% endblock head %}
+
+{% block nav %}
+    {% nav_bar %}
+{% endblock nav %}
+
+{% block content %}
+    <div id="playerWrapper" align="center">
+        <img id = "target" src="{{ img_url }}" style="width: 724px; height: 408px;"><br><br><br>
+    </div>
+
+    <div class="container mt-3">
+    <br>
+    <!--Nav tab-->
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="navbar-link active" href="#home">장소</a>
+        </li>
+        <li class="nav-item">
+            <a class="navbar-link" href="#menu1">인물</a>
+        </li>
+        <li class="nav-item">
+            <a class="navbar-link" href="#menu2">객체</a>
+        </li>
+    </ul>
+
+    <!--Tab Panes -->
+    <!--장소-->
+    <div class="tab-content">
+        <div id="home" class="container tab-pane activate">
+            <div id="playerWrapper" align="">
+                <div class="row">
+                    <div class="col-md-6" id="place_img_area">
+                        {% if object_tag_result_place %}
+                            <canvas id="place_0" width="400" height="200" style="border: 1px solid #d3d3d3;"></canvas>
+                        {% endif %}
+                        {% if not object_tag_result_place %}
+                            No Result
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        {% if object_tag_result_place %}
+                            {% for place_tag in object_tag_result_place %}
+                                {{ place_tag.auto_description }} : {{ place_tag.auto_score }} <br>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    <!--인물-->
+        <div id="menu1" class="container tab-pane fade">
+            <div id="playerWrapper" align="">
+                <div class="row">
+                    <div class="col-md-6" id="face_img_area">
+                        {% if object_tag_result_face %}
+                            {% for i in range %}
+                                <canvas id="face_{{ forloop.counter0 }}" width="100" height="130" style="border: 1px solid #d3d3d3;"></canvas>
+                            {% endfor %}
+                        {% endif %}
+                        {% if not object_tag_result_face %}
+                            No Result
+                        {% endif %}<br>
+                    </div>
+
+                    <div class="col-md-6">
+                        <strong>Top 1</strong> <br><br>
+                        {% if object_tag_result_face %}
+                            {% for top1 in top1_face_object %}
+                                {{ top1.auto_description }} : {{ top1.auto_score }} &nbsp;
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+     <!--객체-->
+        <div id="menu1" class="container tab-pane fade">
+            <div id="playerWrapper" align="">
+                <div class="row">
+                    <div class="col-md-6" id="object_img_area">
+                        {% if object_tag_result_object %}
+                            {% for object in object_tag_result_object %}
+                                <canvas id="object_{{ forloop.counter0 }}" width="100" height="130" style="border: 1px solid #d3d3d3;"></canvas>
+                            {% endfor %}
+                        {% endif %}
+                        {% if not object_tag_result_object %}
+                            No Result
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                         {% if object_tag_result_object %}
+                            {% for object_tag in object_tag_result_object %}
+                             {{ object_tag.auto_description }} : {{ object_tag.auto_score }} <br>
+                            {% endfor %}
+                         {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+     </div>
+    </div>
+{% endblock content %}
+
+{% block jquery %}
+    {% util_get_image %}
+    <script>
+       getImageURL("#pTagStart{{ frame.pk }}", {{ video.pk }}, {{ frame.currentFrame }});
+        var context1 = [];   //place
+        var context2 = [];   //face
+        var context3 = [];   //object
+
+        var canvas1 = [];   // place
+        var canvas2 = [];   // face
+        var canvas3 = [];   // object
+        //draw
+        function draw_canvas(index, x, y, w, h, module_type){
+
+            var id = module_type;
+            var check_id = module_type.split('_')[0];
+            var temp = document.getElementById(id);
+
+            if (check_id == 'place'){
+                canvas1 = temp;
+                context1 = canvas1.getContext('2d')
+            }
+
+            if (check_id == 'face'){
+                canvas2.push(temp);
+                context2.push(canvas2[index].getContext('2d'))
+            }
+
+            if (check_id =='object'){
+                canvas3.push(temp);
+                context3.push(canvas3[index].getContext('2d'))
+            }
+
+            var image = new Image();
+            image.src = '{{ img_url }}'
+            console.log(image)
+            image.onload =function () {
+                if (check_id == 'place'){
+                    context1.drawImage(image, x, y, w, h, 0, 0, 400, 260)
+                }
+                if ( check_id == 'face'){
+                    context2[index].drawImage(image, x, y, w, h, 0, 0, 100, 130)
+                }
+                if( check_id == 'object'){
+                    context3[index].drawImage(image,x,y,w,h,0,0,100,130)
+                }
+
+            }
+        }
+
+        // 좌표 받기
+        var x_place ={{ list_x_place}};
+        var y_place ={{ list_y_place}};
+        var w_place ={{ list_w_place}};
+        var h_place ={{ list_h_place}};
+        x_list_place = Object.values(x_place);
+        y_list_place = Object.values(y_place);
+        w_list_place = Object.values(w_place);
+        h_list_place = Object.values(h_place);
+
+        var x_face ={{ list_x_face}}
+        var y_face ={{ list_y_face}}
+        var w_face ={{ list_w_face}}
+        var h_face ={{ list_h_face}}
+        x_list_face = Object.values(x_face)
+        y_list_face = Object.values(y_face)
+        w_list_face = Object.values(w_face)
+        h_list_face = Object.values(h_face)
+
+        var x ={{ list_x_object}}
+        var y ={{ list_y_object}}
+        var w ={{ list_w_object}}
+        var h ={{ list_h_object}}
+        x_list_obejct = Object.values(x)
+        y_list_obejct = Object.values(y)
+        w_list_obejct = Object.values(w)
+        h_list_obejct = Object.values(h)
+
+        // 그리기
+        var q_len_place = {{ query_length_place }}
+        var q_len_object = {{ query_length_object }}
+        var q_len_face = {{ query_length_face }}
+
+        if ( q_len_place > 0) {
+            for (var i =  0 ; i <  q_len_place; i++){
+                draw_canvas(i,x_list_place[i],y_list_place[i],w_list_place[i],h_list_place[i],'place_0')
+            }
+        }
+         if ( q_len_face > 0) {
+            for (var i =  0 ; i < q_len_face ; i++){
+                draw_canvas(i,x_list_face[i],y_list_face[i],w_list_face[i],h_list_face[i],'face_'+i)
+            }
+        }
+         if ( q_len_object > 0) {
+            for (var i =  0 ; i < q_len_object ; i++){
+                draw_canvas(i,x_list_obejct[i],y_list_obejct[i],w_list_obejct[i],h_list_obejct[i],'object_'+i)
+            }
+        }
+    </script>
+    <script>
+        $(document).ready(function () {
+            $(".nav-tabs a").click(function () {
+                $(this).tab('show');
+            });
+        });
+    </script>
+{% endblock jquery %}

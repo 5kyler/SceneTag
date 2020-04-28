@@ -133,7 +133,7 @@ class AutoObjectTag(models.Model):
     def save(self, *args, **kwargs):
         super(AutoObjectTag, self).save(*args, **kwargs)
         self.test = str(tasks.communicator("http://mlcoconut.sogang.ac.kr:8000/analyzer/", self.frame,
-                                           modules=str(self.module_name)))
+                                           modules=self.module_name))
 
         json_data = ast.literal_eval(self.test)
         for modules_results in json_data:
@@ -150,22 +150,22 @@ class AutoObjectTag(models.Model):
                 for labels in json_data_label:
                     temp_int = round(float(labels['score']), 2)
                     if temp_int >= self.threshold:
-                        self.manual_tag.create(manual_description=labels['description'], manual_score=temp_int,
-                                               manual_module_name=self.module_name, x=self.x, y=self.y, w=self.w,
+                        self.auto_tag.create(auto_description=labels['description'], auto_score=temp_int,
+                                               auto_module_name=self.module_name, x=self.x, y=self.y, w=self.w,
                                                h=self.h)
         super(AutoObjectTag, self).save()
 
 
-class ManualTagResult(models.Model):
-    manual_tag_result = models.ForeignKey(AutoObjectTag, related_name='manual_tag', on_delete=models.CASCADE)
-    manual_module_name = models.TextField(blank=True)
-    manual_description = models.TextField(null=True, unique=False)
-    manual_score = models.FloatField(null=True, unique=False)
+class AutoTagResult(models.Model):
+    auto_tag_result = models.ForeignKey(AutoObjectTag, related_name='auto_tag', on_delete=models.CASCADE)
+    auto_module_name = models.TextField(blank=True)
+    auto_description = models.TextField(null=True, unique=False)
+    auto_score = models.FloatField(null=True, unique=False)
     x = models.FloatField(null=True, unique=False)
     y = models.FloatField(null=True, unique=False)
     w = models.FloatField(null=True, unique=False)
     h = models.FloatField(null=True, unique=False)
 
     def __unicode__(self):
-        name = u'ManualTagResult_pk :' + str(self.pk)
+        name = u'AutoTagResult_pk :' + str(self.pk)
         return name

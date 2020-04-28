@@ -1,5 +1,5 @@
 from django import forms
-from .models import ShotRotation, ObjectTag, AutoObjectTag, ManualTagResult
+from .models import ShotRotation, ObjectTag, AutoObjectTag, AutoTagResult
 
 
 class ShotRotationForm(forms.ModelForm):
@@ -22,5 +22,5 @@ class ObjectTaggingForm(forms.ModelForm):
 
 class ResultTagForm(forms.ModelForm):
     class Meta:
-        model = ManualTagResult
-        fields = ('manual_module_name', 'manual_description', 'manual_score')
+        model = AutoTagResult
+        fields = ('auto_module_name', 'auto_description', 'auto_score')

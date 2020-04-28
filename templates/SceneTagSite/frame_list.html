@@ -13,19 +13,18 @@
 {% endblock nav %}
 
 {% block content %}
-
-
     <div id="playerWrapper" align="center">
         <video class="video-js vjs-default-skin vjs-big-play-centered" id="video_id" controls preload="auto" width="480" height="240" data-setup="{}">
             <source src="{{ video.localFile.url }}" type="video/mp4">
         </video>
+    </div>
+    <br>
+    <div class="row">
+        video : {{ video }}<br>
+        program name : {{ video.programName }}<br>
+        file : {{ video.localFile.name }}<br>
+        url : {{ video.localFile.url }}<br>
     </div><br>
-
-    video : {{ video }} <br>
-    program name : {{ video.programName }} <br>
-    file : {{ video.localFile.name }} <br>
-    url : {{ video.localFile.url }} <br>
-    <a href="{% url 'list' 1 %}"> video list </a> <br>
 
      <div class="col-md-12" align="center" >
         <strong>FPS(Frames Per Second)</strong> of this Video : <strong>{{ fps }}</strong>
@@ -51,7 +50,21 @@
 -->
     <h1>Tag 정보</h1>
     <div id="chart_placeholder"></div>
-    <div style="text-align: center" id="legend"></div>
+    <div class="row">
+        <div class="col-md-4" id="image-area">
+            {% if object_tag_result %}
+                <canvas id="object" width="100" height="120" style="border: 1px solid #d3d3d3;"></canvas>
+            {% endif %}
+            {% if not obejct_tag_result %}
+
+            {% endif %}
+
+        </div>
+        <div class="col-md-6" style="text-align: center" id="legend"></div>
+
+    </div>
+
+
     <div style="text-align: center" id="zoomEnd"></div>
     <button id="getTimeLine" onclick="getTimeLine({{ video.pk }},'{% url 'api-data' %}');" class="btn btn-danger">태그등록</button>
     <br><br>
@@ -61,6 +74,8 @@
     <div id="FrameTable">
 
     </div>
+
+
 
 {% endblock content %}
 
@@ -76,6 +91,49 @@
             $('#FrameTable').html('').load(url)
         }
         update_frames("{% url 'frame_update' video.pk 1 %}");
+    </script>
+
+
+    <script>
+        {% for frame in frames %}
+            getImageURL("#pTagStart{{ frame.pk }}", {{ video.pk }}, {{ frame.currentFrame }});
+
+        var context;
+        var canvas;
+
+        function draw_canvas(x, y, w, h){
+            //draw
+            var temp = document.getElementById('object');
+            canvas = temp;
+            context = canvas.getContext('2d');
+            var image = new Image();
+            var video_pk = {{ video.pk }};
+            var frame_num = {{ frame.pk }};
+            image.src = '/videos/'+video_pk+'/_frame'+frame_num+'.jpg';
+            image.onload = function () {
+                context.drawImage(image, x, y, w, h, 0, 0, 100, 130)
+            }
+        }
+        //좌표 받기
+        var x ={{ list_x_object }}
+        var y ={{ list_y_object }}
+        var w ={{ list_w_object }}
+        var h ={{ list_h_object }}
+
+        x_list_obejct = Object.values(x);
+        y_list_obejct = Object.values(y);
+        w_list_obejct = Object.values(w);
+        h_list_obejct = Object.values(h);
+
+
+        //그리기
+        var q_len_object = {{ query_length_object }};
+        if(q_len_object > 0){
+             for (var i =  0 ; i < q_len_object ; i++){
+                draw_canvas(i,x_list_obejct[i],y_list_obejct[i],w_list_obejct[i],h_list_obejct[i])
+            }
+        }
+        {% endfor %}
     </script>
 
 {% endblock jquery %}

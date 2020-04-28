@@ -89,6 +89,8 @@
         </div>
     </div>
     <br>
+    <a href="{% url 'bbox' video.pk frame.pk %}" class="btn btn-info btn-block">태그 상세</a>
+    <br>
     <a href="{% url 'auto_object_tagging_register' video.pk frame.pk %}" class="btn btn-success btn-block">태그 등록</a>
     <br>
     <a href="{% url 'auto_object_tagging_modify' video.pk frame.pk %}" class="btn btn-primary btn-block">태그 수정</a>
