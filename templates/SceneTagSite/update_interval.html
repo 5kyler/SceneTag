@@ -1,0 +1,72 @@
+<h3>
+    Interval Video List(
+    {% if cur_intervalpage != '1' %}
+        <a href="javascript:update_interval_videos('{% url 'update_interval' video.pk cur_intervalpage|add:-1 %}')" class="btn btn-sm btn-outline-secondary" role="button">Prev</a>
+    {% else %}
+        <a href="" class="btn btn-sm btn-outline-secondary disabled" role="button">Prev</a>
+    {% endif %}
+    {{ cur_intervalpage }}/{{ max_intervalpage }}
+    {% if cur_intervalpage|add:0 != max_intervalpage|add:0 %}
+        <a href="javascript:update_interval_videos('{% url 'update_interval' video.pk cur_intervalpage|add:1 %}')" class="btn btn-sm btn-outline-secondary" role="button">Next</a>
+    {% else %}
+        <a href="" class="btn btn-sm btn-outline-secondary disabled" role="button">Next</a>
+    {% endif %}
+    )
+</h3>
+
+<table id="intervalvideoWrapper" class="table table-striped">
+    <thead id="table-header" align="center">
+    <th class="row">
+        <div class="col-md-2" align="center">Start</div>
+        <div class="col-md-2" align="center">End</div>
+        <div class="col-md-4" align="center">Information</div>
+        <div class="col-md-1" align="center">Play</div>
+        <div class="col-md-2" align="center">Tag</div>
+        <div class="col-md-1" align="center">Delete</div>
+
+    </th>
+    </thead>
+</table>
+
+<hr>
+
+{% for interval_video in interval_videos %}
+    <div  class="row" id="row{{ interval_video.pk }}" align="center">
+        <div  class="col-md-2">
+            <img class="img-thumbnail" id="pTagStart{{ interval_video.pk }}" src="...">
+        </div >
+        <div  class="col-md-2">
+            <img class="img-thumbnail" id="pTagEnd{{ interval_video.pk }}" src="...">
+        </div >
+        <div  class="col-md-4">
+            <strong id="show_start{{ interval_video.pk }}"></strong>
+            <strong> [{{ interval_video.startFrame }}] ~ </strong>
+            <strong id="show_end{{ interval_video.pk }}">{{ interval_video.endTimestamp }}</strong>
+            <strong>[{{ interval_video.endFrame }}]</strong>
+        </div >
+        <div  class="col-md-1">
+            <i onclick="playback(startTime='{{ interval_video.startTimestamp }}', endTime='{{ interval_video.endTimestamp }}');" id="play_scene", class="far fa-caret-square-right fa-3x" style="cursor:pointer"></i>
+        </div >
+        <div  class="col-md-2">
+            <strong><a href="#">등록</a></strong>
+        </div>
+        <div class="col-md-1">
+            <a href="{% url 'delete_interval_video' video.pk interval_video.pk %}"><i class="far fa-trash-alt"></i></a>
+        </div>
+
+    </div >
+{% endfor %}
+
+<script>
+    {% for interval_video in interval_videos %}
+        getImageURL("#pTagStart{{ interval_video.pk }}", {{ video.pk }}, {{ interval_video.startFrame }});
+        getImageURL("#pTagEnd{{ interval_video.pk }}", {{ video.pk }}, {{ interval_video.endFrame }});
+
+    {% endfor %}
+</script>
+<script>
+    {% for interval_video in interval_videos %}
+        document.getElementById("show_start{{ interval_video.pk }}").innerHTML = timeFormat({{ interval_video.startTimestamp }});
+        document.getElementById("show_end{{ interval_video.pk }}").innerHTML = timeFormat({{ interval_video.endTimestamp }});
+    {% endfor %}
+</script>

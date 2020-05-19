@@ -1,11 +1,5 @@
 from django import forms
-from .models import ShotRotation, ObjectTag, AutoObjectTag, AutoTagResult
-
-
-class ShotRotationForm(forms.ModelForm):
-    class Meta:
-        model = ShotRotation
-        fields = ('video', 'shot', 'rotation', 'parameter')
+from .models import ObjectTag, AutoObjectTag, AutoTagResult
 
 
 class ObjectTagForm(forms.ModelForm):

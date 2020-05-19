@@ -65,7 +65,7 @@
     </div>
 
 
-    <div style="text-align: center" id="zoomEnd"></div>
+    <div style="text-align: center" id="zoomEnd"> </div>
     <button id="getTimeLine" onclick="getTimeLine({{ video.pk }},'{% url 'api-data' %}');" class="btn btn-danger">태그등록</button>
     <br><br>
     <a href="{% url 'export_object_tag_csv' video.pk  %}" class="btn btn-success btn-block">Export CSV</a><br>

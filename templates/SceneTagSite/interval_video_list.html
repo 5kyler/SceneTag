@@ -1,0 +1,125 @@
+{% extends 'SceneTagSite/base.html' %}
+{% load static %}
+{% load base_tags %}
+
+
+{% block head %}
+    <link type="text/css" href="http://mbostock.github.io/d3/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'css/demo.css' %}">
+{% endblock head %}
+
+{% block nav %}
+    {% nav_bar %}
+{% endblock nav %}
+
+{% block content %}
+    <div id="playerWrapper" align="center">
+        <video class="video-js vjs-default-skin vjs-big-play-centered" id="video_id" controls preload="auto" width="720" height="360" data-setup="{}">
+            <source src="{{ video.localFile.url }}" type="video/mp4">
+        </video>
+    </div>
+    <br>
+    <div class="row">
+        video : {{ video }}<br>
+        program name : {{ video.programName }}<br>
+        file : {{ video.localFile.name }}<br>
+        url : {{ video.localFile.url }}<br>
+    </div><br>
+
+     <form method="get" id="interval_video">
+        <div class="form-row">
+            <div class="col-md-4">
+                <strong>Start Time</strong>
+                <input type="text" id="start_time" class="form-control" placeholder="00:00:00">
+                <input type="hidden" id="start_frame">
+                <input type="hidden" id="startTime">
+            </div>
+            <div class="col-md-1">
+                <button type="button" id="startBtn" onclick="getStartTime({{ fps }})" style="margin-top: 25px">Start</button>
+            </div>
+            <div class="col-md-4">
+                <strong>End Time</strong>
+                <input type="text" id="end_time" class="form-control" placeholder="00:00:00">
+                <input type="hidden" id="end_frame">
+                <input type="hidden" id="endTime">
+            </div>
+             <div class="col-md-1">
+                <button type="button" id="endBtn" onclick="getEndTime({{ fps }})" style="margin-top: 25px" disabled>End</button>
+            </div>
+            <div class="col-md-2" style="margin-top: 25px" align="right">
+                <button type="submit" onclick="saveIntervalVideo({{ video.pk }},'{% url 'making_interval_video' %}')" class="save btn btn-success">Save</button>
+            </div>
+        </div>
+    </form>
+    <br>
+
+    <div id="IntervalVideoTable">
+
+    </div>
+
+
+{% endblock content %}
+
+{% block jquery %}
+    <script src="{% static "js/playback.js" %}"></script>
+    <script src="{% static "js/frame.js" %}"></script>
+    <script src="{% static "js/get_key_frame.js" %}"></script>
+    {% util_get_image %}
+    <script>
+        function update_interval_videos(url){
+            $('#IntervalVideoTable').html('').load(url)
+        }
+        update_interval_videos("{% url 'update_interval' video.pk 1 %}");
+    </script>
+
+    <script>
+
+        var vid = videojs('video_id');
+        function getStartTime(fps) {
+            var fixed_fps = parseFloat(fps).toFixed(2);
+            var frameRate = fixed_fps;
+            var currentTime = vid.currentTime();
+            var startFrame = Math.floor(currentTime*frameRate);
+            var startTime = parseFloat(currentTime).toFixed();
+            document.getElementById("startTime").value = currentTime;
+            document.getElementById("start_time").value = timeFormat(startTime);
+            document.getElementById("start_frame").value = startFrame;
+            document.getElementById("endBtn").disabled = false;
+        }
+
+        function getEndTime(fps) {
+            var fixed_fps = parseFloat(fps).toFixed(2);
+            var frameRate = fixed_fps;
+            var currentTime = vid.currentTime();
+            var endFrame = Math.floor(currentTime*frameRate);
+            var endTime = parseFloat(currentTime).toFixed();
+            document.getElementById("endTime").value = currentTime;
+            document.getElementById("end_time").value = timeFormat(endTime);
+            document.getElementById("end_frame").value = endFrame;
+            document.getElementById("startBtn").disabled = true;
+        }
+    </script>
+    <script>
+        function saveIntervalVideo(video_pk,target_url) {
+            var vid = videojs('video_id');
+            vid.ready(function(){
+                var startFrame = document.getElementById("start_frame").value;
+                var startTime = document.getElementById("startTime").value;
+                var endFrame = document.getElementById("end_frame").value;
+                var endTime = document.getElementById("endTime").value;
+
+                $.ajax({
+                    url:target_url,
+                    data:{
+                        'video_pk': video_pk,
+                        'startFrame': startFrame,
+                        'startTimeStamp': startTime,
+                        'endFrame': endFrame,
+                        'endTimeStamp': endTime,
+                    }
+                })
+            })
+        }
+    </script>
+
+{% endblock jquery %}

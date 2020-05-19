@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
     <div class="container">
 
-        <a class="navbar-brand" href="#">SceneTags</a>
+        <a class="navbar-brand" href="#">CCTV Tagging</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbars" aria-controls="navbars" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -16,7 +16,7 @@
                 </li>
                 {% if video %}
                     <li class="nav-item">
-                        <a class="nav-link text-success" href="{% url 'frame_list' video.pk %}">
+                        <a class="nav-link text-success">
                             <span class="fas fa-eye"></span>
                             {{ video.programName }}
                         </a>

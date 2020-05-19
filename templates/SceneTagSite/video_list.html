@@ -16,16 +16,18 @@
             <thead>
             <tr>
                 <th>ID</th>
-                <th>프로그램 이름</th>
+                <th>video 이름</th>
+                <th>tagging</th>
                 <th>등록 시간</th>
                 <th>수정 시간</th>
             </tr>
             </thead>
             <tbody>
             {% for video in videos %}
-                <tr>
-                    <td>{{ video.pk }}</td>
-                    <td><a href="{% url 'frame_list' video.pk %}">{{ video.programName }}</a> </td>
+                <tr >
+                    <td align="center">{{ video.pk }}</td>
+                    <td>{{ video.programName }} </td>
+                    <td><a href="{% url 'frame_list' video.pk %}" class="btn btn-success">frame tagging</a> <a href="{% url 'interval_video_list' video.pk %}" class="btn btn-success">video tagging</a>  </td>
                     <td>{{ video.registerDateTime }}</td>
                     <td>{{ video.lastSavedDateTime }}</td>
                 </tr>

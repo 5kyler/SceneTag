@@ -8,11 +8,11 @@ ROTATION_CHOICES = (
 
 OBJECT_CHOICES = (
     (0, 'None'),
-    (1, '보행자'),
-    (2, '신호등'),
-    (3, '자동차'),
-    (4, '가로등'),
-    (5, '표지판'),
-    (6, '횡단보도'),
-    (7, '전봇대'),
+    (1, 'pedestrian'),
+    (2, 'traffic_light'),
+    (3, 'car'),
+    (4, 'street_lamp'),
+    (5, 'sign'),
+    (6, 'crosswalk'),
+    (7, 'power_pole'),
 )

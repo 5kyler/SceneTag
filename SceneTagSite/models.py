@@ -9,24 +9,6 @@ from SceneTagSite.utils.choices import *
 from SceneTagSite import tasks
 
 
-# Create your models here.
-
-def make_new_frame(video_pk, number_of_frame, start_frame, end_frame, start_timestamp, end_timestamp):
-    video = Video.objects.get(pk=video_pk)
-    frames = FrameList.objects.filter(video__pk=video_pk, currentFrame__gte=start_frame, currentFrame__lte=end_frame)
-    new_shot = Shot(video=video)
-    new_shot.number_of_frame = number_of_frame
-    new_shot.startFrame = start_frame
-    new_shot.endFrame = end_frame
-    new_shot.startTimestamp = start_timestamp
-    new_shot.endTimestamp = end_timestamp
-    new_shot.save()
-
-    for frame in frames:
-        frame.shot = new_shot
-        frame.save()
-
-
 class Video(models.Model):
     programName = models.CharField(max_length=255)
     localFile = models.FileField(blank=True)
@@ -45,22 +27,8 @@ class Video(models.Model):
         super(Video, self).save(*args, **kwargs)
 
 
-class Shot(models.Model):
-    video = models.ForeignKey(Video, on_delete=models.CASCADE)
-    number_of_frame = models.IntegerField
-    startFrame = models.IntegerField(default=0)
-    endFrame = models.IntegerField(default=0)
-    startTimeStamp = models.CharField(max_length=255, blank=True)
-    endTimeStamp = models.CharField(max_length=255, blank=True)
-
-    def __unicode__(self):
-        name = str(self.video.programName) + u'Shot(' + str(self.pk) + u')'
-        return name
-
-
 class FrameList(models.Model):
     video = models.ForeignKey(Video, on_delete=models.CASCADE)
-    shot = models.ForeignKey(Shot, on_delete=models.SET_NULL, blank=True, null=True)
     start_frame = models.IntegerField(default=0)
     end_frame = models.IntegerField(default=0)
     imgName = models.CharField(max_length=255, null=True)
@@ -79,17 +47,6 @@ class FrameList(models.Model):
 
     def __unicode__(self):
         name = u'frame_pk:' + str(self.pk)
-        return name
-
-
-class ShotRotation(models.Model):
-    video = models.ForeignKey(Video, on_delete=models.CASCADE)
-    shot = models.ForeignKey(Shot, on_delete=models.CASCADE)
-    rotation = models.IntegerField(choices=ROTATION_CHOICES, default=0)
-    parameter = models.IntegerField(default=0)
-
-    def __unicode__(self):
-        name = u'ShotRotation_pk:' + str(self.pk)
         return name
 
 
@@ -151,8 +108,8 @@ class AutoObjectTag(models.Model):
                     temp_int = round(float(labels['score']), 2)
                     if temp_int >= self.threshold:
                         self.auto_tag.create(auto_description=labels['description'], auto_score=temp_int,
-                                               auto_module_name=self.module_name, x=self.x, y=self.y, w=self.w,
-                                               h=self.h)
+                                             auto_module_name=self.module_name, x=self.x, y=self.y, w=self.w,
+                                             h=self.h)
         super(AutoObjectTag, self).save()
 
 
@@ -168,4 +125,27 @@ class AutoTagResult(models.Model):
 
     def __unicode__(self):
         name = u'AutoTagResult_pk :' + str(self.pk)
+        return name
+
+
+def make_new_interval_video(video_pk, start_frame, end_frame, start_timestamp, end_timestamp):
+    video = Video.objects.get(pk=video_pk)
+    new_interval_video = IntervalVideo(video=video)
+    new_interval_video.startFrame=start_frame
+    new_interval_video.endFrame=end_frame
+    new_interval_video.startTimestamp=start_timestamp
+    new_interval_video.endTimestamp=end_timestamp
+    new_interval_video.save()
+
+
+class IntervalVideo(models.Model):
+    video = models.ForeignKey(Video,on_delete=models.CASCADE)
+    startFrame = models.IntegerField(default=0)
+    endFrame = models.IntegerField(default=0)
+    startTimestamp = models.CharField(max_length=255, blank=True)
+    endTimestamp = models.CharField(max_length=255, blank=True)
+
+    def __unicode__(self):
+        name = str(self.video.programName) + \
+               u'IntervalVideo('+str(self.pk)+u')'
         return name

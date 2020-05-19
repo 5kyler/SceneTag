@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'SceneTagSite.apps.ScenetagsiteConfig',
-    'SceneTagSite.templatetags.base_tags'
+    'SceneTagSite.templatetags.base_tags',
+    'background_task',
 ]
 
 MIDDLEWARE = [
