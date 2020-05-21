@@ -1,9 +1,18 @@
 from __future__ import unicode_literals
 
-ROTATION_CHOICES = (
-    (0, "Normal"),
-    (1, "rotation"),
-    (2, "invert"),
+INTERVAL_CHOICES = (
+    (0, "None"),
+    (1, "폭행"),
+    (2, "싸움"),
+    (3, "절도"),
+    (4, "기물파손"),
+    (5, "실신"),
+    (6, "배회"),
+    (7, "침입"),
+    (8, "투기"),
+    (9, "강도"),
+    (10, "납치"),
+
 )
 
 OBJECT_CHOICES = (

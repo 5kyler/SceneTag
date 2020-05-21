@@ -1,5 +1,5 @@
 from django import forms
-from .models import ObjectTag, AutoObjectTag, AutoTagResult
+from .models import ObjectTag, AutoObjectTag, AutoTagResult, IntervalVideo
 
 
 class ObjectTagForm(forms.ModelForm):
@@ -18,3 +18,10 @@ class ResultTagForm(forms.ModelForm):
     class Meta:
         model = AutoTagResult
         fields = ('auto_module_name', 'auto_description', 'auto_score')
+
+
+class IntervalTagForm(forms.ModelForm):
+    class Meta:
+        model = IntervalVideo
+        fields = ('tag1','tag2', 'tag3')
+

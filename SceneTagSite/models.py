@@ -131,21 +131,25 @@ class AutoTagResult(models.Model):
 def make_new_interval_video(video_pk, start_frame, end_frame, start_timestamp, end_timestamp):
     video = Video.objects.get(pk=video_pk)
     new_interval_video = IntervalVideo(video=video)
-    new_interval_video.startFrame=start_frame
-    new_interval_video.endFrame=end_frame
-    new_interval_video.startTimestamp=start_timestamp
-    new_interval_video.endTimestamp=end_timestamp
+    new_interval_video.startFrame = start_frame
+    new_interval_video.endFrame = end_frame
+    new_interval_video.startTimestamp = start_timestamp
+    new_interval_video.endTimestamp = end_timestamp
     new_interval_video.save()
 
 
 class IntervalVideo(models.Model):
-    video = models.ForeignKey(Video,on_delete=models.CASCADE)
+    video = models.ForeignKey(Video, on_delete=models.CASCADE,null=True)
     startFrame = models.IntegerField(default=0)
     endFrame = models.IntegerField(default=0)
     startTimestamp = models.CharField(max_length=255, blank=True)
     endTimestamp = models.CharField(max_length=255, blank=True)
+    tag1 = models.IntegerField(choices=INTERVAL_CHOICES, default=0)
+    tag2 = models.IntegerField(choices=INTERVAL_CHOICES, default=0)
+    tag3 = models.IntegerField(choices=INTERVAL_CHOICES, default=0)
 
     def __unicode__(self):
         name = str(self.video.programName) + \
                u'IntervalVideo('+str(self.pk)+u')'
         return name
+

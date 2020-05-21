@@ -1,0 +1,101 @@
+{%  extends 'SceneTagSite/base.html' %}
+{%  load static %}
+{% load base_tags %}
+
+{% block head %}
+{% endblock head %}
+
+{% block nav %}
+    {% nav_bar %}
+{% endblock nav %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12" align="center">
+                <div class="card">
+                    <div class="card-header">
+                         <div class="col" style="font-size: 28px;text-align: center" >
+                            <a id="delete_previous_scene_btn" href="#"><i class="far fa-arrow-alt-circle-left"></i></a>
+                                <strong>Interval Video Tagging</strong>
+                            <a id="delete_next_scene_btn" href="#"><i class="far fa-arrow-alt-circle-right"></i></a>
+                         </div>
+                    </div>
+                    <br>
+                    <div id="playerWrapper" align="center">
+                        <video class="video-js vjs-default-skin vjs-big-play-centered" id="video_id" controls preload="auto" width="720" height="360" data-setup="{}">
+                            <source src="{{ video.localFile.url }}" type="video/mp4">
+                        </video>
+                    </div>
+                    <br>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="alert alert-success" role="alert">
+            <strong>비디오 정보 --- {{ video.programName }}</strong><br>
+        </div>
+        <div class="alert alert-success" role="alert">
+            <strong>구간 ---</strong> <strong id="show_start"></strong> ~ <strong id="show_end"></strong> <i onclick="playback(startTime='{{ interval.startTimestamp }}', endTime='{{ interval.endTimestamp }}');" id="play_scene", class="far fa-caret-square-right fa-1x" style="cursor:pointer"></i><br>
+        </div>
+        <div class="alert alert-success" role="alert">
+            <strong>Tag 내용 ---</strong> <strong id="tag_list"> {{ interval.get_tag1_display }} | {{ interval.get_tag2_display }} | {{ interval.get_tag3_display }} </strong> <br>
+         </div>
+
+        <form method="POST" class="post-form">{% csrf_token %}
+
+            <div class="inline_label" align="center">
+                <label for="id_tag1">
+                    <strong>Tag1</strong>
+                    <select name="tag1" class="browser-default custom-select mb-2" required id="id_tag1">
+                        {% for choice in form.tag1.field.choices %}
+                            <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                 <label for="id_tag2">
+                    <strong>Tag2</strong>
+                    <select name="tag2" class="browser-default custom-select mb-2" required id="id_tag2">
+                        {% for choice in form.tag2.field.choices %}
+                            <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                 <label for="id_tag3">
+                    <strong>Tag3</strong>
+                    <select name="tag3" class="browser-default custom-select mb-2" required id="id_tag3">
+                        {% for choice in form.tag3.field.choices %}
+                            <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <select name="video" class="browser-default custom-select mb-4" required id="id_video" placeholder="Disabled input" style="display: none" >
+                    <option value="{{ video.id }}">{{ video }}</option>
+                </select>
+                <input name="startFrame" type="hidden" class="browser-default custom-select mb-2" required id="id_startFrame" value="{{ interval.startFrame }}">
+                <input name="endFrame" type="hidden" class="browser-default custom-select mb-2" required id="id_endFrame" value="{{ interval.endFrame }}">
+                <input name="startTimestamp" type="hidden" class="browser-default custom-select mb-2" required id="id_startTimestamp" value="{{ interval.startTimestamp }}">
+                <input name="endTimestamp" type="hidden" class="browser-default custom-select mb-2" required id="id_endTimestamp" value="{{ interval.endTimestamp }}">
+            </div>
+
+
+            <div class="col-md-12" align="right">
+                <button type="submit" class="save btn btn-success">태그등록</button>
+            </div>
+        </form>
+    </div>
+
+
+{% endblock content %}
+
+{% block jquery %}
+    <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static "js/playback.js" %}"></script>
+    <script>
+        document.getElementById("show_start").innerHTML = timeFormat({{ interval.startTimestamp }});
+        document.getElementById("show_end").innerHTML = timeFormat({{ interval.endTimestamp }});
+    </script>
+
+{% endblock jquery %}
+

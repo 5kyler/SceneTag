@@ -41,14 +41,14 @@
         <div  class="col-md-4">
             <strong id="show_start{{ interval_video.pk }}"></strong>
             <strong> [{{ interval_video.startFrame }}] ~ </strong>
-            <strong id="show_end{{ interval_video.pk }}">{{ interval_video.endTimestamp }}</strong>
+            <strong id="show_end{{ interval_video.pk }}"></strong>
             <strong>[{{ interval_video.endFrame }}]</strong>
         </div >
         <div  class="col-md-1">
             <i onclick="playback(startTime='{{ interval_video.startTimestamp }}', endTime='{{ interval_video.endTimestamp }}');" id="play_scene", class="far fa-caret-square-right fa-3x" style="cursor:pointer"></i>
         </div >
         <div  class="col-md-2">
-            <strong><a href="#">등록</a></strong>
+            <strong><a href="{% url 'interval_video_tagging_register' video.pk interval_video.pk %}">등록 및 수정</a></strong>
         </div>
         <div class="col-md-1">
             <a href="{% url 'delete_interval_video' video.pk interval_video.pk %}"><i class="far fa-trash-alt"></i></a>

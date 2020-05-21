@@ -5,7 +5,7 @@ import csv
 from django.core import serializers
 from django.db.models import Sum
 from django.forms import modelformset_factory
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.conf import settings
@@ -24,7 +24,7 @@ import os
 import json
 import re
 
-from .forms import ObjectTagForm, ObjectTaggingForm, ResultTagForm
+from .forms import ObjectTagForm, ObjectTaggingForm, ResultTagForm, IntervalTagForm
 from .models import ObjectTag, AutoTagResult, AutoObjectTag, IntervalVideo
 
 from datetime import datetime, date
@@ -667,5 +667,29 @@ def making_interval_video(request):
 def delete_interval_video(request, video_id, interval_pk):
     interval = IntervalVideo.objects.get(pk=interval_pk)
     interval.delete()
-    return HttpResponseRedirect(reverse('interval_video_list',args=video_id))
+    return HttpResponseRedirect(reverse('interval_video_list', args=video_id))
+
+
+def interval_video_tagging_register(request, video_id, interval_pk):
+    video = models.Video.objects.get(pk=video_id)
+    interval = IntervalVideo.objects.get(pk=interval_pk)
+    interval_tag = get_object_or_404(IntervalVideo, id=interval_pk)
+    if request.method == "POST":
+        form = IntervalTagForm(request.POST, instance=interval_tag)
+        if form.is_valid():
+
+            interval_tag.tag1 = form.cleaned_data['tag1']
+            interval_tag.tag2 = form.cleaned_data['tag2']
+            interval_tag.tag3 = form.cleaned_data['tag3']
+            interval_tag.save()
+            return redirect('interval_video_tagging_register', video_id, interval_pk)
+    else:
+        form = IntervalTagForm(instance=interval_tag)
+    return render(request, 'SceneTagSite/interval_tagging_register.html', {
+        'interval': interval,
+        'video': video,
+        'form': form,
+
+    })
+
 

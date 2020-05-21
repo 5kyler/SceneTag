@@ -42,4 +42,5 @@ urlpatterns = [
     path('interval/<video_id>/page/<page_num>', views.update_interval_video, name='update_interval'),
     path('making_interval_video/', views.making_interval_video, name='making_interval_video'),
     path('interval/delete/<video_id>/<interval_pk>/', views.delete_interval_video, name='delete_interval_video'),
+    path('interval_tag/<video_id>/<interval_pk>/register/', views.interval_video_tagging_register, name='interval_video_tagging_register'),
 ]
