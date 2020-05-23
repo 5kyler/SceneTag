@@ -1,0 +1,18 @@
+version: '2.3'
+
+services:
+  main:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - "docker-compose-env/main.env"
+    expose:
+      - "8000"
+      - "22"
+    ports:
+      - "20001:8000"
+      - "20022:22"
+    stdin_open: true
+    tty: true
