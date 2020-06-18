@@ -14,10 +14,12 @@ class Video(models.Model):
     localFile = models.FileField(blank=True)
     registerDateTime = models.DateTimeField(default=timezone.now)
     lastSavedDateTime = models.DateTimeField(default=timezone.now)
+    pgm_tms_id = models.CharField(max_length=255, default=0)
+    framerate = models.FloatField(default=29.97)
     width = models.IntegerField(default=0)
     height = models.IntegerField(default=0)
-    framerate = models.FloatField(default=29.97)
-    pgm_tms_id = models.CharField(max_length=255, default=0)
+    frame_count = models.IntegerField(default=0)
+    length = models.CharField(max_length=100, default="")
 
     def __unicode__(self):
         return self.programName

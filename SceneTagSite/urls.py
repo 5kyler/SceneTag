@@ -4,7 +4,6 @@ from django.contrib import admin
 from SceneTagSite import views
 
 urlpatterns = [
-
     # video list page
     path('list/page/<list_page>/', views.video_list, name='list'),
     path('list/refresh/', views.video_list_refresh, name='refresh_list'),
@@ -30,8 +29,10 @@ urlpatterns = [
     path('<video_id>/auto_tag/<frame_id>/register/', views.auto_object_tagging_register, name='auto_object_tagging_register'),
     path('<video_id>/auto_tag/<frame_id>/modify/', views.auto_object_tagging_modify, name='auto_object_tagging_modify'),
     path('<video_id>/auto_tag/<frame_id>/bbox/', views.bbox, name='bbox'),
+
     # csv
     path('export/<video_id>/object/csv/', views.export_object_tag_csv, name='export_object_tag_csv'),
+    path('export/<video_id>/event/json/', views.export_event_tag_json, name='export_event_tag_json'),
 
     # ajax
     path('ajax/get_data/', views.get_data, name='api-data'),

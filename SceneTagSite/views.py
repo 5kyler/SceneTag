@@ -13,7 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from SceneTagSite import models
 from SceneTagSite.utils import file_control, SBD_Django
-from SceneTagSite.utils import frame_extractor
+from SceneTagSite.utils import frame_extractor, choices
 from collections import Counter
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -51,11 +51,12 @@ def video_list_refresh(request):
         new_video.save()
         rel_path = file_control.move_file_to_pk_directory(file, new_video.pk)
 
-        vidcap = cv2.VideoCapture(file)
-        new_video.framerate = vidcap.get(cv2.CAP_PROP_FPS)
-        new_video.width = vidcap.get(cv2.CAP_PROP_FRAME_WIDTH)
-        new_video.height = vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-
+        vidcap = cv2.VideoCapture(os.path.join(os.getcwd(), "videos", rel_path))
+        new_video.framerate = float(vidcap.get(cv2.CAP_PROP_FPS))
+        new_video.width = int(vidcap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        new_video.height = int(vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        new_video.frame_count = int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))
+        new_video.length = str(time.strftime('%H:%M:%S', time.gmtime(int(new_video.frame_count/new_video.framerate))))
         new_video.localFile.name = rel_path
         new_video.save()
         SBD_Django.request_detect(new_video.localFile.path)
@@ -202,6 +203,33 @@ def export_object_tag_csv(request, video_id):
                                                                                   'x1', 'y1', 'w', 'h')
     for tag in object_tags:
         writer.writerow(tag),
+
+    return response
+
+def export_event_tag_json(request, video_id):
+    video = models.Video.objects.get(pk=video_id)
+    interval_video_list = models.IntervalVideo.objects.filter(video=video).order_by('startFrame')
+
+    events_json = {
+        "video_name" : video.programName,
+        "length" : video.length,
+        "frame_num"  : video.frame_count,
+        "event" : []
+    }
+
+    for interval_video in interval_video_list:
+        event = {
+            "event": str(choices.INTERVAL_CHOICES[interval_video.tag1][1]),
+            "start_time": str(time.strftime('%H:%M:%S', time.gmtime(int(interval_video.startTimestamp)))),
+            "end_time": str(time.strftime('%H:%M:%S', time.gmtime(int(float(interval_video.endTimestamp)))))
+        }
+        events_json["event"].append(event)
+
+
+    str_events_tag = str(events_json)
+
+    response = HttpResponse(str_events_tag, content_type='application/json')
+    response['Content-Disposition'] = 'attachment; filename={}.json'.format(video.programName.split(".")[0])
 
     return response
 
