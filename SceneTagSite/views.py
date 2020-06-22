@@ -220,7 +220,7 @@ def export_event_tag_json(request, video_id):
     for interval_video in interval_video_list:
         event = {
             "event": str(choices.INTERVAL_CHOICES[interval_video.tag1][1]),
-            "start_time": str(time.strftime('%H:%M:%S', time.gmtime(int(interval_video.startTimestamp)))),
+            "start_time": str(time.strftime('%H:%M:%S', time.gmtime(int(float(interval_video.startTimestamp))))),
             "end_time": str(time.strftime('%H:%M:%S', time.gmtime(int(float(interval_video.endTimestamp)))))
         }
         events_json["event"].append(event)
