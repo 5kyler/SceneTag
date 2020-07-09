@@ -42,6 +42,7 @@
             <button class="btn btn-outline-info btn_group"><a href="{% url 'auto_object_tagging' video.pk frame.pk %}">자동</a></button>
         </div >
     </div >
+    <input type="text" id="current_time" >
 {% endfor %}
 
 
@@ -49,5 +50,11 @@
     <script>
         {% for frame in frames %}
             getImageURL("#pTagCurrent{{ frame.pk }}", {{ video.pk }}, {{ frame.currentFrame }});
+        {% endfor %}
+    </script>
+
+    <script>
+        {% for frame in frames %}
+            document.getElementById("current_time").innerHTML = timecode2sec({{ frame.currentTimeStamp }});
         {% endfor %}
     </script>

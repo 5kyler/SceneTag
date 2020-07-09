@@ -536,7 +536,7 @@ console.log(endTime)
 // }
 // console.log(data);
 
-function getTimeLine(video_pk, url){
+function ggetTimeLine(video_pk, url){
   console.log(video_pk)
   try {
     // var defaultData = []

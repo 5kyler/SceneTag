@@ -28,7 +28,7 @@
 
      <div class="col-md-12" align="center" >
         <strong>FPS(Frames Per Second)</strong> of this Video : <strong>{{ fps }}</strong>
-         <button id="getCurrentFrame" onclick="getCurrentVideoFrame({{ video.pk }},'{% url 'extract_current_frame' %}',{{ fps }});" class="btn btn-danger"> 다운</button>
+         <button id="getCurrentFrame" type="submit" onclick="getCurrentVideoFrame({{ video.pk }},'{% url 'extract_current_frame' %}',{{ fps }});" class="btn btn-danger"> 다운</button>
     </div><br><br>
 <!--
      <form>

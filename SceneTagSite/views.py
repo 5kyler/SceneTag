@@ -713,10 +713,22 @@ def interval_video_tagging_register(request, video_id, interval_pk):
             return redirect('interval_video_tagging_register', video_id, interval_pk)
     else:
         form = IntervalTagForm(instance=interval_tag)
+
+    try:
+        prev_url = IntervalVideo.objects.filter(id__lt=interval_pk, video= video).order_by("-id")[0:1].get().id
+    except:
+        prev_url = interval_pk
+    try:
+        next_url = IntervalVideo.objects.filter(id__gt=interval_pk, video= video).order_by("id")[0:1].get().id
+    except IntervalVideo.DoesNotExist:
+        next_url = interval_pk
+
     return render(request, 'SceneTagSite/interval_tagging_register.html', {
         'interval': interval,
         'video': video,
         'form': form,
+        'prev_url' : prev_url,
+        'next_url' : next_url,
 
     })
 

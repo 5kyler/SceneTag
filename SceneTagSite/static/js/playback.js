@@ -38,15 +38,18 @@ function playback(startTime, endTime) {
         var myPlayer = videojs('video_id');
         myPlayer.ready(function () {
             myPlayer.currentTime(startTime);
+
             this.on('timeupdate', function () {
                 var whereYouAt = myPlayer.currentTime();
 
                 if(this.currentTime() >= endTime) {
                     myPlayer.pause();
                 }
+
             })
         });
         myPlayer.play();
+        console.log(myPlayer.currentTime());
     }
     catch(e) {
         console.log("FAIL!!!!!!!!!!!!!!!")
