@@ -6,7 +6,7 @@ Django==3.0.12
 django-background-tasks==1.2.5
 django-compat==1.0.15
 idna==2.9
-numpy==1.18.4
+numpy==1.22.0
 opencv-python==4.2.0.34
 pytz==2020.1
 requests==2.23.0
